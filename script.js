@@ -718,3 +718,74 @@ updateControls();
   
     document.head.append(mobileStyle);
   })();
+  /* Update contact links across all pages */
+document.querySelectorAll(".footer-contact").forEach(contact => {
+  contact.innerHTML = `
+    <h2>Let’s Connect!</h2>
+
+    <div class="footer-contact-links">
+      <a
+        href="https://www.linkedin.com/in/fatimajshah/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Fatima Shah on LinkedIn"
+      >
+        <span aria-hidden="true">in</span>
+      </a>
+
+      <a
+        href="mailto:fatimas@andrew.cmu.edu"
+        aria-label="Email Fatima Shah"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14"/>
+          <path d="m3 5 9 8 9-8"/>
+        </svg>
+      </a>
+    </div>
+  `;
+});
+
+(() => {
+  const contactStyles = document.createElement("style");
+
+  contactStyles.textContent = `
+    .footer-contact-links {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .footer-contact-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      background: #111;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .footer-contact-links a span {
+      font-family: Arial, sans-serif;
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .footer-contact-links svg {
+      width: 25px;
+      height: 25px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+    }
+
+    .footer-contact-links a:focus-visible {
+      outline: 2px solid #95758d;
+      outline-offset: 4px;
+    }
+  `;
+
+  document.head.append(contactStyles);
+})();
