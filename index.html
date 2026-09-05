@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fatima's Portfolio</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Abel&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+
+<body id="top">
+  <div class="pink-glow" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="wordmark" href="index.html">Fatima's Portfolio</a>
+
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="#projects">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Fatima Shah</h1>
+        <p>artist · architect · engineer · cyborg · educator</p>
+      </div>
+    </section>
+
+    <div class="work-area">
+      <section class="about" id="about">
+        <div class="about-copy">
+          <h2>Hi, I'm Fatima.</h2>
+          <p>
+            I'm a student at Carnegie Mellon University pursuing an
+            MS in Computational Design. I study how humans create and understand art, and how it is
+            mediated to society through technology.
+          </p>
+
+          <p>
+            I step into both the roles of artist and engineer to inspect
+            digital systems and design interventions that make them more
+            inclusive, effective, and culturally grounded.
+          </p>
+        </div>
+
+        <img
+          class="portrait"
+          src="images/headshot.jpg"
+          alt="Fatima Shah"
+        >
+      </section>
+
+      <section class="projects" id="projects">
+        
+        <h2>Projects</h2>
+
+        <div class="portfolio-cards">
+            <a class="portfolio-card card-mehroma" href="mehroma.html">
+              <div class="portfolio-picture">
+                <img
+                  src="images/red2.jpg"
+                  alt="Mehroma floral earrings"
+                  loading="lazy"
+                >
+              </div>
+              <div class="portfolio-copy">
+                <span class="portfolio-category">Heritage & Jewelry</span>
+                <h3>Mehroma</h3>
+                <p>Reinterpreting architectural motifs through handcrafted jewelry.</p>
+                <span class="portfolio-arrow" aria-hidden="true">↗</span>
+              </div>
+            </a>
+          
+            <a class="portfolio-card card-ontology" href="labeling_ontology.html">
+              <div class="portfolio-picture">
+                <img
+                  src="images/ontol1.jpg"
+                  alt="Closet, a colored-pencil self-portrait"
+                  loading="lazy"
+                >
+              </div>
+              <div class="portfolio-copy">
+                <span class="portfolio-category">Art & Artificial Intelligence</span>
+                <h3>Labeling Ontology</h3>
+                <p>Bringing cultural context and interpretation into dataset design.</p>
+                <span class="portfolio-arrow" aria-hidden="true">↗</span>
+              </div>
+            </a>
+          
+            <a class="portfolio-card card-museum" href="museum_educator.html">
+              <div class="portfolio-picture">
+                <img
+                  src="images/mus1.jpg"
+                  alt="Fatima presenting at the museum"
+                  loading="lazy"
+                >
+              </div>
+              <div class="portfolio-copy">
+                <span class="portfolio-category">Curation & Interpretation</span>
+                <h3>Museum Educator</h3>
+                <p>Exploring the museum as a space for knowledge and dialogue.</p>
+                <span class="portfolio-arrow" aria-hidden="true">↗</span>
+              </div>
+            </a>
+          
+            <a class="portfolio-card card-spatial" href="spatial_design.html">
+              <div class="portfolio-picture">
+                <img
+                  src="images/bench_render2.png"
+                  alt="Hudson River bench rendering"
+                  loading="lazy"
+                >
+              </div>
+              <div class="portfolio-copy">
+                <span class="portfolio-category">Architecture & Form</span>
+                <h3>Spatial Design</h3>
+                <p>Studies in movement, light, and the spaces we inhabit.</p>
+                <span class="portfolio-arrow" aria-hidden="true">↗</span>
+              </div>
+            </a>
+          
+            <a class="portfolio-card card-algobuild" href="algobuild.html">
+              <div class="portfolio-picture">
+                <div class="portfolio-algo-frame">
+                  <img
+                    src="images/algo2.JPG"
+                    alt="AlgoBuild blocks, hourglasses, and cards"
+                    loading="lazy"
+                  >
+                </div>
+              </div>
+              <div class="portfolio-copy">
+                <span class="portfolio-category">Play & Learning</span>
+                <h3>AlgoBuild</h3>
+                <p>An interactive game introducing algorithmic thinking. Ages 3+.</p>
+                <span class="portfolio-arrow" aria-hidden="true">↗</span>
+              </div>
+            </a>
+          </div>
+      </section>
+
+      <button
+        class="motion-toggle"
+        type="button"
+        aria-label="Pause cursor halo"
+        aria-pressed="false"
+        hidden
+      >
+        <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
+        </svg>
+        <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m8 5 11 7-11 7z"/>
+        </svg>
+      </button>
+    </div>
+  </main>
+
+
+  <footer class="site-footer">
+    <div class="footer-details">
+      <h2>Fatima Shah</h2>
+      <p>Carnegie Mellon University · MS in Computational Design</p>
+        Mount Holyoke College Graduate · Class of 2026<br>
+        Computer Science and Architecture Double Major
+      </p>
+    </div>
+
+    <div class="footer-contact">
+      <h2>Let’s Connect!</h2>
+
+      <div class="social-links">
+        <!-- Replace this button with your LinkedIn link when ready. -->
+        <button
+          class="social-link linkedin"
+          type="button"
+          aria-label="LinkedIn profile not yet added"
+          disabled
+        >
+          <span aria-hidden="true">in</span>
+        </button>
+
+        <a
+          class="social-link"
+          href="mailto:fatimas@andrew.cmu.edu"
+          aria-label="Email Fatima Shah"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18v12H3z"/>
+            <path d="m3 6 9 7 9-7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

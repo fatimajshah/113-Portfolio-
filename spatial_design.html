@@ -1,0 +1,1286 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Spatial Design — Fatima Shah</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Abel&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Keeps your existing slow cursor halo. -->
+  <script src="script.js" defer></script>
+
+  <style>
+    :root {
+      --paper: #f2eceb;
+      --ink: #282625;
+      --pink: 226, 147, 220;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Abel", Arial, sans-serif;
+      font-weight: 400;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      isolation: isolate;
+    }
+
+    h1, h2, h3, p, figure {
+      margin: 0;
+    }
+
+    h1, h2, h3 {
+      font-weight: 400;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 6px;
+    }
+
+    /* Navigation */
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3.2vw 4vw;
+    }
+
+    .wordmark,
+    .site-nav a {
+      font-size: clamp(15px, 1.08vw, 21px);
+      text-decoration: none;
+    }
+
+    .site-nav {
+      display: flex;
+      gap: 22px;
+    }
+
+    .site-nav a[aria-current],
+    .site-nav a:hover {
+      text-decoration: underline;
+      text-underline-offset: 6px;
+      text-decoration-thickness: 1px;
+    }
+
+    /* Cursor halo */
+
+    .pink-glow {
+      position: fixed;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      width: clamp(340px, 46vw, 900px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      pointer-events: none;
+
+      background: radial-gradient(
+        circle,
+        rgba(var(--pink), 0.58) 0%,
+        rgba(var(--pink), 0.36) 27%,
+        rgba(var(--pink), 0.13) 49%,
+        rgba(var(--pink), 0) 72%
+      );
+
+      transform:
+        translate3d(
+          var(--halo-x, 50vw),
+          var(--halo-y, 95vh),
+          0
+        )
+        translate(-50%, -50%);
+    }
+
+    /* Shared page typography */
+
+    .section-title {
+      font-size: clamp(27px, 1.9vw, 38px);
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: 0.01em;
+    }
+
+    .body-copy,
+    figcaption,
+    .small-heading {
+      font-size: clamp(16px, 1.08vw, 21px);
+      line-height: 1.6;
+    }
+
+    /* Hudson River Bench opening */
+
+    .bench-intro {
+      display: grid;
+      grid-template-columns: 41.8vw minmax(0, 1fr);
+      gap: 12.3vw;
+      align-items: start;
+      padding: 3.5vw 4vw 0;
+    }
+
+    .bench-subtitle {
+      margin-top: 12px;
+      font-size: clamp(23px, 1.5vw, 30px);
+      line-height: 1.4;
+    }
+
+    .drawing-board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.2vw;
+      margin-top: 6vw;
+      padding: 3vw 2.5vw;
+      background: #fff;
+    }
+
+    .drawing-board figure {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .drawing-window {
+      position: relative;
+      display: grid;
+      place-items: center;
+      height: 17vw;
+      overflow: hidden;
+    }
+
+    .drawing-window img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* The black plan image is horizontal in your folder. */
+    .drawing-window.rotated img {
+      width: 17vw;
+      height: 10vw;
+      max-width: none;
+      transform: rotate(90deg);
+    }
+
+    .drawing-board figcaption {
+      margin-top: 1.5vw;
+      font-size: clamp(12px, 0.95vw, 18px);
+    }
+
+    .bench-site img {
+      width: 100%;
+      aspect-ratio: 1.085 / 1;
+      object-fit: cover;
+      object-position: right center;
+    }
+
+    .bench-site figcaption {
+      margin-top: 12px;
+    }
+
+    /* Bench renderings */
+
+    .bench-renderings {
+      margin: 10.5vw 4vw 0;
+    }
+
+    .small-heading {
+      margin-bottom: 1.6vw;
+    }
+
+    .bench-render-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.44fr 1fr;
+      gap: 0.8vw;
+      align-items: stretch;
+    }
+
+    .bench-render-grid img {
+      width: 100%;
+      height: 23vw;
+      object-fit: cover;
+      background: #fff;
+    }
+
+    /* Sundial: diagrams left and explanation right */
+
+    .sundial {
+      display: grid;
+      grid-template-columns: 34vw minmax(0, 1fr);
+      gap: 4.6vw;
+      align-items: start;
+      margin: 15vw 4vw 0;
+    }
+
+    .sun-diagrams figure + figure {
+      margin-top: 2.8vw;
+    }
+
+    .sun-diagrams figcaption {
+      margin: 0 0 0.8vw 1.3vw;
+    }
+
+    .sun-diagrams img {
+      width: 100%;
+      height: auto;
+    }
+
+    .sun-copy {
+      max-width: 35vw;
+    }
+
+    .sun-description {
+      max-width: 27em;
+      margin-top: 3.4vw;
+      font-style: italic;
+    }
+
+    .sun-copy p,
+    .sun-copy li {
+      font-size: clamp(16px, 1.08vw, 21px);
+      line-height: 1.6;
+    }
+
+    .sun-days {
+      margin-top: 1.3em;
+    }
+
+    .sun-copy ul,
+    .sun-copy ol {
+      padding-left: 1.8em;
+      margin: 1.1em 0;
+    }
+
+    .sun-copy li + li {
+      margin-top: 0.7em;
+    }
+
+    .sun-location {
+      margin-top: 1.2em;
+    }
+
+    .sun-process {
+      margin-top: 9.5vw;
+    }
+
+    .sun-process h3 {
+      margin-bottom: 1.2vw;
+      font-size: clamp(23px, 1.5vw, 30px);
+    }
+
+    /* Sundial rendering strip */
+
+    .sun-renderings {
+      margin: 9vw 4vw 0;
+    }
+
+    .sun-render-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      background: #fff;
+    }
+
+    .sun-render-grid img {
+      width: 100%;
+      height: 21vw;
+      object-fit: contain;
+    }
+
+    /* Pavilion */
+
+    .pavilion {
+      margin: 12vw 4vw 0;
+    }
+
+    .pavilion-description {
+      max-width: 39vw;
+      margin-top: 3.2vw;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(17px, 1.18vw, 23px);
+      line-height: 1.5;
+    }
+
+    .pavilion-grid {
+      display: grid;
+      grid-template-columns: 18.6vw 26.3vw 26.3vw;
+      justify-content: space-between;
+      align-items: start;
+      margin-top: 5vw;
+      margin-right: 3.9vw;
+    }
+
+    .pavilion-grid figure {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .pavilion-image {
+      display: flex;
+      align-items: center;
+      height: 26.7vw;
+    }
+
+    .pavilion-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .pavilion-grid .base-unit img {
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .pavilion-grid figcaption {
+      margin-top: 3.3vw;
+    }
+
+    /* Final critique */
+
+    .critique {
+      width: 45.6vw;
+      margin: 10.5vw 0 7vw 4vw;
+    }
+
+    .critique img {
+      width: 100%;
+      height: auto;
+    }
+
+    .critique h2 {
+      margin-top: 1.8vw;
+      font-size: clamp(23px, 1.5vw, 30px);
+    }
+
+    .critique p {
+      margin-top: 1.2vw;
+      font-size: clamp(16px, 1.08vw, 21px);
+    }
+
+    /* Explore */
+
+    .explore {
+      position: relative;
+      padding: 8.8vw 0 8vw;
+      background: rgba(165, 142, 139, 0.92);
+      color: var(--paper);
+    }
+
+    .explore h2 {
+      text-align: center;
+      margin-bottom: 6vw;
+      font-size: clamp(27px, 1.85vw, 36px);
+    }
+
+    .explore-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 18.5vw);
+      justify-content: space-between;
+      margin-left: 11.8%;
+      margin-right: 15.6%;
+    }
+
+    .explore-grid a {
+      min-width: 0;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .explore-grid img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .explore-grid span {
+      display: block;
+      margin-top: 3.5vw;
+      font-size: clamp(16px, 1.08vw, 21px);
+    }
+
+    .explore-grid a:hover span {
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }
+
+    /* Pause button */
+
+    .motion-toggle {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 6px;
+      border: 0;
+      border-radius: 50%;
+      background: #655652;
+      color: white;
+      cursor: pointer;
+    }
+
+    .motion-toggle[hidden] {
+      display: none;
+    }
+
+    .motion-toggle svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    .play-icon {
+      display: none;
+    }
+
+    .motion-toggle[aria-pressed="true"] .pause-icon {
+      display: none;
+    }
+
+    .motion-toggle[aria-pressed="true"] .play-icon {
+      display: block;
+    }
+
+    /* Footer */
+
+    .site-footer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 40px;
+      padding: 5.8vw 8.5vw 8vw 4vw;
+    }
+
+    .footer-details h2 {
+      margin-bottom: 28px;
+      font-size: clamp(27px, 1.85vw, 36px);
+      line-height: 1.3;
+    }
+
+    .footer-details p {
+      font-size: clamp(16px, 1.08vw, 21px);
+    }
+
+    .footer-details p + p {
+      margin-top: 18px;
+    }
+
+    .footer-contact {
+      display: flex;
+      align-items: center;
+      justify-self: end;
+      gap: 40px;
+    }
+
+    .footer-contact h2 {
+      font-size: clamp(23px, 1.5vw, 30px);
+      white-space: nowrap;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-link {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      padding: 8px;
+      border: 0;
+      border-radius: 0;
+      background: #000;
+      color: var(--paper);
+      text-decoration: none;
+    }
+
+    .social-link:disabled {
+      opacity: 1;
+    }
+
+    .linkedin {
+      font-family: Arial, sans-serif;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+
+    .social-link svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+    }
+
+    /* Tablet */
+
+    @media (max-width: 1000px) {
+      .site-header {
+        padding: 30px 5vw;
+      }
+
+      .bench-intro {
+        grid-template-columns: 1fr 1fr;
+        gap: 5vw;
+        padding-top: 45px;
+      }
+
+      .drawing-board {
+        margin-top: 40px;
+        padding: 25px 15px;
+      }
+
+      .drawing-board figcaption {
+        font-size: 13px;
+      }
+
+      .sundial {
+        grid-template-columns: 40vw minmax(0, 1fr);
+      }
+
+      .sun-copy {
+        max-width: none;
+      }
+
+      .sun-process {
+        margin-top: 50px;
+      }
+
+      .pavilion-description {
+        max-width: 65vw;
+      }
+
+      .footer-contact {
+        gap: 20px;
+      }
+    }
+
+    /* Phone */
+
+    @media (max-width: 650px) {
+      .bench-intro {
+        grid-template-columns: 1fr;
+        gap: 35px;
+        padding: 35px 6vw 0;
+      }
+
+      .drawing-board {
+        margin-top: 30px;
+        gap: 12px;
+        padding: 25px 15px;
+      }
+
+      .drawing-window {
+        height: 42vw;
+      }
+
+      .drawing-window.rotated img {
+        width: 42vw;
+        height: 20vw;
+      }
+
+      .drawing-board figcaption {
+        margin-top: 18px;
+        font-size: 12px;
+      }
+
+      .bench-site img {
+        aspect-ratio: 1.085 / 1;
+      }
+
+      .bench-renderings,
+      .sun-renderings {
+        margin: 60px 6vw 0;
+      }
+
+      .small-heading {
+        margin-bottom: 20px;
+      }
+
+      .bench-render-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .bench-render-grid img {
+        height: auto;
+        max-height: 95vw;
+        object-fit: contain;
+      }
+
+      .sundial {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        margin: 75px 6vw 0;
+      }
+
+      .sun-diagrams figure + figure {
+        margin-top: 30px;
+      }
+
+      .sun-diagrams figcaption {
+        margin: 0 0 12px;
+      }
+
+      .sun-description {
+        margin-top: 25px;
+      }
+
+      .sun-process {
+        margin-top: 35px;
+      }
+
+      .sun-render-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sun-render-grid img {
+        height: auto;
+        max-height: 75vw;
+        object-fit: contain;
+      }
+
+      .pavilion {
+        margin: 75px 6vw 0;
+      }
+
+      .pavilion-description {
+        max-width: none;
+        margin-top: 25px;
+      }
+
+      .pavilion-grid {
+        grid-template-columns: 1fr;
+        gap: 35px;
+        margin: 35px 0 0;
+      }
+
+      .pavilion-image {
+        height: auto;
+      }
+
+      .pavilion-image img {
+        height: auto;
+        max-height: 100vw;
+        object-fit: contain;
+      }
+
+      .pavilion-grid .base-unit img {
+        width: 70%;
+        margin: 0 auto;
+      }
+
+      .pavilion-grid figcaption {
+        margin-top: 18px;
+      }
+
+      .critique {
+        width: auto;
+        margin: 65px 6vw;
+      }
+
+      .critique h2 {
+        margin-top: 22px;
+      }
+
+      .critique p {
+        margin-top: 15px;
+      }
+
+      .explore {
+        padding: 55px 6vw 75px;
+      }
+
+      .explore h2 {
+        margin-bottom: 35px;
+      }
+
+      .explore-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5vw;
+        margin: 0;
+      }
+
+      .explore-grid span {
+        font-size: 14px;
+        margin-top: 18px;
+      }
+
+      .site-footer {
+        grid-template-columns: 1fr;
+        padding: 55px 8vw 70px;
+      }
+
+      .footer-contact {
+        justify-self: end;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+    .explore {
+    position: relative;
+    isolation: auto;
+    overflow: hidden;
+    background: rgba(165, 142, 139, 0.4);
+    }
+
+    .explore::before {
+    content: none;
+    }
+    /* Consistent glass Explore sections */
+.explore {
+  position: relative;
+  isolation: auto;
+  background: rgba(165, 142, 139, 0.4);
+  padding: 80px 7vw 90px;
+  color: #282625;
+}
+
+.explore::before {
+  content: none;
+}
+
+.explore > h2 {
+  color: #282625;
+  text-align: center;
+  margin-bottom: 55px;
+}
+
+.explore .explore-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 45px;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.explore .explore-grid > a {
+  position: relative;
+  display: block;
+  flex: 0 1 260px;
+  min-width: 0;
+  padding: 12px 12px 0;
+  color: #282625;
+  text-align: center;
+  text-decoration: none;
+  background: transparent;
+
+  transition:
+    transform 400ms ease,
+    filter 400ms ease,
+    opacity 400ms ease;
+}
+
+/* Square glass panel behind each picture */
+.explore .explore-grid > a::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  pointer-events: none;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 0;
+
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 5px 20px rgba(65, 45, 60, 0.05);
+
+  transition:
+    background 400ms ease,
+    border-color 400ms ease,
+    box-shadow 400ms ease;
+}
+
+/* Supports both versions of your existing markup */
+.explore .explore-grid > a > figure {
+  position: relative;
+  margin: 0;
+}
+
+.explore .explore-grid img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Captions sit outside the square glass outline */
+.explore .explore-grid > a > span,
+.explore .explore-grid figcaption {
+  position: relative;
+  display: block;
+  margin: 34px 0 0;
+  color: #282625;
+  font-size: clamp(16px, 1.08vw, 21px);
+  line-height: 1.4;
+}
+
+/* Gentle lift and matching background blur */
+@media (hover: hover) and (pointer: fine) {
+  .explore .explore-grid:has(> a:hover)
+    > a:not(:hover):not(:focus-visible) {
+    filter: blur(3px);
+    opacity: 0.6;
+  }
+
+  .explore .explore-grid > a:hover {
+    transform: translateY(-7px);
+    text-decoration: none;
+  }
+
+  .explore .explore-grid > a:hover::before {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.95);
+
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+      0 18px 38px rgba(70, 45, 65, 0.13);
+  }
+}
+
+.explore .explore-grid > a:focus-visible {
+  outline: 2px solid #95758d;
+  outline-offset: 6px;
+}
+
+/* Two columns on phones */
+@media (max-width: 600px) {
+  .explore {
+    padding: 55px 6vw 80px;
+  }
+
+  .explore > h2 {
+    margin-bottom: 35px;
+  }
+
+  .explore .explore-grid {
+    gap: 30px 18px;
+  }
+
+  .explore .explore-grid > a {
+    flex: 0 1 calc(50% - 9px);
+    padding: 8px 8px 0;
+  }
+
+  .explore .explore-grid > a > span,
+  .explore .explore-grid figcaption {
+    margin-top: 25px;
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore .explore-grid > a,
+  .explore .explore-grid > a::before {
+    transition: none;
+  }
+
+  .explore .explore-grid > a:hover {
+    transform: none;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <div class="pink-glow" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="wordmark" href="index.html">
+      Fatima's Portfolio
+    </a>
+
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="index.html">Home</a>
+      <a href="index.html#projects" aria-current="location">
+        Projects
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HUDSON RIVER BENCH -->
+
+    <section class="bench-intro">
+      <div class="bench-left">
+        <h1 class="section-title">Spatial Design</h1>
+        <h2 class="bench-subtitle">Hudson River Bench</h2>
+
+        <div class="drawing-board">
+          <figure>
+            <div class="drawing-window">
+              <img
+                src="images/bench_sketch4.png"
+                alt="Red gesture-line plan drawing of the bench"
+              >
+            </div>
+            <figcaption>Plan Drawing</figcaption>
+          </figure>
+
+          <figure>
+            <div class="drawing-window rotated">
+              <img
+                src="images/bench_sketch1.png"
+                alt="Black-line plan drawing of the bench"
+              >
+            </div>
+            <figcaption>Plan Drawing</figcaption>
+          </figure>
+
+          <figure>
+            <div class="drawing-window">
+              <img
+                src="images/bench_sketch3.png"
+                alt="Perspective drawing of the full bench structure"
+              >
+            </div>
+            <figcaption>Perspective Drawing</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <figure class="bench-site">
+        <img
+          src="images/bench1.png"
+          alt="Hudson River Bench placed along the waterfront at night"
+        >
+
+        <figcaption>
+          A bench generated from gesture-line studies of the Hudson River,
+          translating the water’s movement into a sculptural,
+          site-responsive form.
+        </figcaption>
+      </figure>
+    </section>
+
+    <!-- BENCH RENDERINGS -->
+
+    <section class="bench-renderings" aria-labelledby="bench-renders-title">
+      <h2 class="small-heading" id="bench-renders-title">Renderings</h2>
+
+      <div class="bench-render-grid">
+        <img
+          src="images/bench_render2.png"
+          alt="Full-height rendering of the sculptural bench"
+          loading="lazy"
+        >
+
+        <img
+          src="images/bench_render4.png"
+          alt="Overhead detail of the bench’s flowing surfaces"
+          loading="lazy"
+        >
+
+        <img
+          src="images/bench_render1.png"
+          alt="Perspective detail of the bench seating"
+          loading="lazy"
+        >
+      </div>
+    </section>
+
+    <!-- SUNDIAL DESIGN -->
+
+    <section class="sundial">
+      <div class="sun-diagrams">
+        <figure>
+          <figcaption>Perspective View</figcaption>
+
+          <img
+            src="images/sun_sketch1.png"
+            alt="Perspective sundial diagram with colored sunlight paths"
+            loading="lazy"
+          >
+        </figure>
+
+        <figure>
+          <figcaption>Plan View</figcaption>
+
+          <img
+            src="images/sun_sketch2.png"
+            alt="Plan diagram showing sundial apertures and sunlight paths"
+            loading="lazy"
+          >
+        </figure>
+      </div>
+
+      <div class="sun-copy">
+        <h2 class="section-title">Sundial Design</h2>
+
+        <p class="sun-description">
+          A projecting sundial that filters sunlight through calibrated
+          apertures and casts the hour onto a central platform.
+        </p>
+
+        <p class="sun-days">It functions accurately on three days:</p>
+
+        <ul>
+          <li>Summer Solstice</li>
+          <li>October 2nd (Project Critique Day)</li>
+          <li>Winter Solstice</li>
+        </ul>
+
+        <p class="sun-location">Designated for South Hadley, MA</p>
+
+        <div class="sun-process">
+          <h3>Process:</h3>
+
+          <ol>
+            <li>
+              Studied the Sun’s Altitude and Azimuth on the chosen days.
+            </li>
+            <li>
+              Placed apertures according to those angles.
+            </li>
+            <li>
+              Each aperture admits light at its corresponding hour.
+            </li>
+            <li>
+              The projected beam lands on the central platform.
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUNDIAL RENDERINGS -->
+
+    <section class="sun-renderings" aria-labelledby="sun-renders-title">
+      <h2 class="small-heading" id="sun-renders-title">Renderings</h2>
+
+      <div class="sun-render-grid">
+        <img
+          src="images/sun3.png"
+          alt="Left perspective rendering of the purple sundial"
+          loading="lazy"
+        >
+
+        <img
+          src="images/sun2.png"
+          alt="Front rendering showing the sundial’s calibrated apertures"
+          loading="lazy"
+        >
+
+        <img
+          src="images/sun1.png"
+          alt="Right perspective rendering of the purple sundial"
+          loading="lazy"
+        >
+      </div>
+    </section>
+
+    <!-- COMMUNITY PAVILION -->
+
+    <section class="pavilion">
+      <h2 class="section-title">
+        Community Solar Observation Pavilion
+      </h2>
+
+      <p class="pavilion-description">
+        A single folded unit grows into a light-filtering shell that
+        safely projects the eclipse for communal viewing.
+      </p>
+
+      <div class="pavilion-grid">
+        <figure>
+          <div class="pavilion-image base-unit">
+            <img
+              src="images/lamp3.JPG"
+              alt="Folded paper base unit"
+              loading="lazy"
+            >
+          </div>
+          <figcaption>base unit</figcaption>
+        </figure>
+
+        <figure>
+          <div class="pavilion-image">
+            <img
+              src="images/pav2.png"
+              alt="Plan view of the folded pavilion"
+              loading="lazy"
+            >
+          </div>
+          <figcaption>Eclipse Pavilion (Plan View)</figcaption>
+        </figure>
+
+        <figure>
+          <div class="pavilion-image">
+            <img
+              src="images/pav1.JPG"
+              alt="Physical pavilion model with seating and a scale figure"
+              loading="lazy"
+            >
+          </div>
+          <figcaption>Eclipse Pavilion (Perspective View)</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- CRITIQUE -->
+
+    <section class="critique">
+      <img
+        src="images/crit1.jpg"
+        alt="Fatima presenting the pavilion model during the final critique"
+        loading="lazy"
+      >
+
+      <h2>Final Project Critique</h2>
+
+      <p>
+        Presenting the pavilion’s unit aggregation and light-filtering
+        strategy.
+      </p>
+    </section>
+
+    <!-- EXPLORE -->
+
+    <section class="explore">
+      <h2>Explore</h2>
+
+      <div class="explore-grid">
+        <a href="labeling_ontology.html">
+          <img
+            src="images/ontol2.jpg"
+            alt="Labeling Ontology artwork"
+            loading="lazy"
+          >
+          <span>Labeling Ontology</span>
+        </a>
+
+        <a href="mehroma.html">
+          <img
+            src="images/red2.jpg"
+            alt="Red and gold floral Mehroma earrings"
+            loading="lazy"
+          >
+          <span>Mehroma</span>
+        </a>
+
+        <a href="museum_educator.html">
+          <img
+            src="images/mus1.jpg"
+            alt="Fatima presenting artwork in a museum"
+            loading="lazy"
+          >
+          <span>Museum Educator</span>
+        </a>
+      </div>
+
+      <button
+        class="motion-toggle"
+        type="button"
+        aria-label="Pause cursor halo"
+        aria-pressed="false"
+        hidden
+      >
+        <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 5h4v14H7zm6 0h4v14h-4z"/>
+        </svg>
+
+        <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m8 5 11 7-11 7z"/>
+        </svg>
+      </button>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+
+  <footer class="site-footer">
+    <div class="footer-details">
+      <h2>Fatima Shah</h2>
+      <p>Carnegie Mellon University · MS in Computational Design</p>
+      <p>
+        Mount Holyoke College Graduate · Class of 2026<br>
+        Computer Science and Architecture Double Major
+      </p>
+    </div>
+
+    <div class="footer-contact">
+      <h2>Let’s Connect!</h2>
+
+      <div class="social-links">
+        <button
+          class="social-link linkedin"
+          type="button"
+          aria-label="LinkedIn profile not yet added"
+          disabled
+        >
+          <span aria-hidden="true">in</span>
+        </button>
+
+        <a
+          class="social-link"
+          href="mailto:fatimas@andrew.cmu.edu"
+          aria-label="Email Fatima Shah"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 6h18v12H3z"/>
+            <path d="m3 6 9 7 9-7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+```

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AlgoBuild — Fatima Shah</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Abel&display=swap"
+    rel="stylesheet"
+  >
+
+  <script src="script.js" defer></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f2eceb;
+      color: #282625;
+      font-family: "Abel", sans-serif;
+      font-size: clamp(16px, 1.08vw, 21px);
+      line-height: 1.6;
+      isolation: isolate;
+    }
+
+    h1, h2, h3, p, figure {
+      margin: 0;
+    }
+
+    h1, h2, h3 {
+      font-weight: 400;
+      line-height: 1.3;
+    }
+
+    h1 {
+      font-size: clamp(32px, 2.2vw, 44px);
+    }
+
+    h2 {
+      font-size: clamp(27px, 1.85vw, 37px);
+    }
+
+    h3 {
+      font-size: clamp(21px, 1.4vw, 28px);
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 6px;
+    }
+
+    .pink-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: clamp(340px, 46vw, 900px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+      background: radial-gradient(
+        circle,
+        rgba(226, 147, 220, 0.58) 0%,
+        rgba(226, 147, 220, 0.36) 27%,
+        rgba(226, 147, 220, 0.13) 49%,
+        rgba(226, 147, 220, 0) 72%
+      );
+      transform:
+        translate3d(
+          var(--halo-x, 50vw),
+          var(--halo-y, 95vh),
+          0
+        )
+        translate(-50%, -50%);
+    }
+
+    .site-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      padding: 3.2vw 4vw;
+    }
+
+    .site-header nav {
+      display: flex;
+      gap: 30px;
+    }
+
+    .projects-nav {
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    .hero {
+      padding: 4vw 8vw 0;
+      text-align: center;
+    }
+
+    .hero-description {
+      max-width: 650px;
+      margin: 22px auto 0;
+    }
+
+    /*
+      The original photo is portrait.
+      This landscape frame accommodates its rotated dimensions.
+    */
+    .hero-image {
+      position: relative;
+      width: min(100%, 1120px);
+      aspect-ratio: 4 / 3;
+      margin: 4vw auto 0;
+      overflow: hidden;
+    }
+
+    .hero-image img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 75%;
+      max-width: none;
+      height: 133.333333%;
+      object-fit: contain;
+      transform: translate(-50%, -50%) rotate(-90deg);
+    }
+
+    .components {
+      padding: 8vw 10vw 0;
+    }
+
+    .components > h2 {
+      text-align: center;
+      margin-bottom: 4vw;
+    }
+
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4.5vw;
+    }
+
+    .component {
+      text-align: center;
+    }
+
+    .component img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: contain;
+    }
+
+    .component figcaption {
+      margin-top: 28px;
+    }
+
+    .component-number {
+      display: block;
+      margin-bottom: 12px;
+      font-size: 15px;
+      letter-spacing: 0.06em;
+    }
+
+    .component p {
+      max-width: 300px;
+      margin: 14px auto 0;
+    }
+
+    .rules,
+    .action {
+      padding: 8vw 8vw 0;
+      text-align: center;
+    }
+
+    .rules h2,
+    .action h2 {
+      margin-bottom: 3.5vw;
+    }
+
+    .rules-image {
+      display: block;
+      width: min(100%, 800px);
+      margin: 0 auto;
+    }
+
+    .rules-image img {
+      width: 100%;
+    }
+
+    .action img {
+      width: min(100%, 740px);
+      margin: 0 auto;
+    }
+
+    .action {
+      padding-bottom: 9vw;
+    }
+
+    .explore {
+      position: relative;
+      padding: 7vw 8vw 8vw;
+      background: rgba(165, 142, 139, 0.4);
+      text-align: center;
+    }
+
+    .explore h2 {
+      margin-bottom: 5vw;
+    }
+
+    .explore-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 5vw;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .explore-grid img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .explore-grid figcaption {
+      margin-top: 28px;
+    }
+
+    .motion-toggle {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      padding: 12px;
+      border: 0;
+      border-radius: 50%;
+      color: white;
+      background: rgba(55, 43, 42, 0.7);
+      cursor: pointer;
+    }
+
+    .motion-toggle[hidden] {
+      display: none;
+    }
+
+    .motion-toggle svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+
+    .play-icon {
+      display: none;
+    }
+
+    .motion-toggle[aria-pressed="true"] .pause-icon {
+      display: none;
+    }
+
+    .motion-toggle[aria-pressed="true"] .play-icon {
+      display: block;
+    }
+
+    .site-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 40px;
+      padding: 5.8vw 8vw 7vw 4vw;
+    }
+
+    .footer-bio h2 {
+      margin-bottom: 28px;
+    }
+
+    .footer-bio p + p {
+      margin-top: 16px;
+    }
+
+    .footer-contact {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .footer-contact h2 {
+      font-size: clamp(23px, 1.5vw, 30px);
+    }
+
+    .email-link {
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      color: white;
+      background: #111;
+    }
+
+    .email-link svg {
+      width: 25px;
+      height: 25px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+    }
+
+    @media (max-width: 700px) {
+      .site-header {
+        padding: 25px 6vw;
+      }
+
+      .site-header nav {
+        gap: 18px;
+      }
+
+      .hero {
+        padding: 45px 6vw 0;
+      }
+
+      .hero-image {
+        margin-top: 35px;
+      }
+
+      .components {
+        padding: 65px 8vw 0;
+      }
+
+      .components > h2 {
+        margin-bottom: 35px;
+      }
+
+      .component-grid {
+        grid-template-columns: 1fr;
+        gap: 50px;
+      }
+
+      .component {
+        width: min(100%, 380px);
+        margin: 0 auto;
+      }
+
+      .rules,
+      .action {
+        padding: 65px 6vw 0;
+      }
+
+      .rules h2,
+      .action h2 {
+        margin-bottom: 30px;
+      }
+
+      .action {
+        padding-bottom: 70px;
+      }
+
+      .explore {
+        padding: 55px 8vw 80px;
+      }
+
+      .explore h2 {
+        margin-bottom: 35px;
+      }
+
+      .explore-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 35px 7vw;
+      }
+
+      .explore-grid figcaption {
+        margin-top: 16px;
+      }
+
+      .site-footer {
+        flex-direction: column;
+        padding: 50px 8vw 65px;
+      }
+
+      .footer-contact {
+        align-self: flex-end;
+      }
+    }
+    /* Smaller hero */
+.hero-image {
+  width: min(100%, 850px);
+}
+
+.component img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center;
+  clip-path: inset(6%);
+  transform: scale(1.136);
+}
+
+/* Two rules images side by side */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.rules-grid a,
+.rules-grid img {
+  display: block;
+  width: 100%;
+}
+
+/* Half the previous desktop image width */
+.action img {
+  width: min(100%, 370px);
+}
+
+@media (max-width: 600px) {
+  .rules-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.hero-image {
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+}
+
+.hero-image img {
+  top: 37.5%;
+  left: 50%;
+  width: 75%;
+  height: 166.666667%;
+  max-width: none;
+  object-fit: contain;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+.hero-image {
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+}
+
+.hero-image img {
+  top: 37.5%;
+  left: 50%;
+  width: 75%;
+  height: 166.666667%;
+  max-width: none;
+  object-fit: contain;
+  transform: translate(-50%, -50%) rotate(-90deg);
+}
+/* Consistent glass Explore sections */
+.explore {
+  position: relative;
+  isolation: auto;
+  background: rgba(165, 142, 139, 0.4);
+  padding: 80px 7vw 90px;
+  color: #282625;
+}
+
+.explore::before {
+  content: none;
+}
+
+.explore > h2 {
+  color: #282625;
+  text-align: center;
+  margin-bottom: 55px;
+}
+
+.explore .explore-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 45px;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.explore .explore-grid > a {
+  position: relative;
+  display: block;
+  flex: 0 1 260px;
+  min-width: 0;
+  padding: 12px 12px 0;
+  color: #282625;
+  text-align: center;
+  text-decoration: none;
+  background: transparent;
+
+  transition:
+    transform 400ms ease,
+    filter 400ms ease,
+    opacity 400ms ease;
+}
+
+/* Square glass panel behind each picture */
+.explore .explore-grid > a::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  pointer-events: none;
+
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 0;
+
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 5px 20px rgba(65, 45, 60, 0.05);
+
+  transition:
+    background 400ms ease,
+    border-color 400ms ease,
+    box-shadow 400ms ease;
+}
+
+/* Supports both versions of your existing markup */
+.explore .explore-grid > a > figure {
+  position: relative;
+  margin: 0;
+}
+
+.explore .explore-grid img {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Captions sit outside the square glass outline */
+.explore .explore-grid > a > span,
+.explore .explore-grid figcaption {
+  position: relative;
+  display: block;
+  margin: 34px 0 0;
+  color: #282625;
+  font-size: clamp(16px, 1.08vw, 21px);
+  line-height: 1.4;
+}
+
+/* Gentle lift and matching background blur */
+@media (hover: hover) and (pointer: fine) {
+  .explore .explore-grid:has(> a:hover)
+    > a:not(:hover):not(:focus-visible) {
+    filter: blur(3px);
+    opacity: 0.6;
+  }
+
+  .explore .explore-grid > a:hover {
+    transform: translateY(-7px);
+    text-decoration: none;
+  }
+
+  .explore .explore-grid > a:hover::before {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.95);
+
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+      0 18px 38px rgba(70, 45, 65, 0.13);
+  }
+}
+
+.explore .explore-grid > a:focus-visible {
+  outline: 2px solid #95758d;
+  outline-offset: 6px;
+}
+
+/* Two columns on phones */
+@media (max-width: 600px) {
+  .explore {
+    padding: 55px 6vw 80px;
+  }
+
+  .explore > h2 {
+    margin-bottom: 35px;
+  }
+
+  .explore .explore-grid {
+    gap: 30px 18px;
+  }
+
+  .explore .explore-grid > a {
+    flex: 0 1 calc(50% - 9px);
+    padding: 8px 8px 0;
+  }
+
+  .explore .explore-grid > a > span,
+  .explore .explore-grid figcaption {
+    margin-top: 25px;
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore .explore-grid > a,
+  .explore .explore-grid > a::before {
+    transition: none;
+  }
+
+  .explore .explore-grid > a:hover {
+    transform: none;
+  }
+}
+  </style>
+</head>
+
+<body>
+  <div class="pink-glow" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a href="index.html">Fatima's Portfolio</a>
+
+    <nav aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a class="projects-nav" href="index.html#projects">Projects</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="algobuild-title">
+      <h1 id="algobuild-title">AlgoBuild</h1>
+
+      <p class="hero-description">
+        An interactive game designed to teach players about
+        algorithmic thinking, Ages 3+.
+      </p>
+
+      <figure class="hero-image">
+        <img
+          src="images/algo2.JPG"
+          alt="AlgoBuild game with colorful building blocks, hourglasses, and algorithm cards"
+          fetchpriority="high"
+        >
+      </figure>
+    </section>
+
+    <section class="components" aria-labelledby="components-title">
+      <h2 id="components-title">Components</h2>
+
+      <div class="component-grid">
+        <figure class="component">
+          <img
+            src="images/algo1.JPG"
+            alt="Colorful Tetris-shaped building blocks"
+            loading="lazy"
+          >
+
+          <figcaption>
+            <span class="component-number">Component 1</span>
+            <h3>Tetris Blocks</h3>
+            <p>Tetris blocks for building.</p>
+          </figcaption>
+        </figure>
+
+        <figure class="component">
+          <img
+            src="images/algo3.JPG"
+            alt="Six hourglasses with different colored sand"
+            loading="lazy"
+          >
+
+          <figcaption>
+            <span class="component-number">Component 2</span>
+            <h3>Time Constraint</h3>
+            <p>
+              A time constraint chosen by the player.
+            </p>
+          </figcaption>
+        </figure>
+
+        <figure class="component">
+          <img
+            src="images/algo4.JPG"
+            alt="Orange AlgoCards and blue Condition Cards"
+            loading="lazy"
+          >
+
+          <figcaption>
+            <span class="component-number">Component 3</span>
+            <h3>AlgoCards</h3>
+            <p>
+              Introducing conditionals and algorithmic rules
+              to the game.
+            </p>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+    <section class="rules" aria-labelledby="rules-title">
+        <h2 id="rules-title">Rules of the Game</h2>
+      
+        <div class="rules-grid">
+          <a
+            href="images/rules1.jpg"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open game rules page 1 at full size"
+          >
+            <img
+              src="images/rules1.jpg"
+              alt="AlgoBuild game rules, page 1"
+              loading="lazy"
+            >
+          </a>
+      
+          <a
+            href="images/rules2.jpg"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open game rules page 2 at full size"
+          >
+            <img
+              src="images/rules2.jpg"
+              alt="AlgoBuild game rules, page 2"
+              loading="lazy"
+            >
+          </a>
+        </div>
+      </section>
+    </section>
+
+    <section class="action" aria-labelledby="action-title">
+      <h2 id="action-title">AlgoBuild in Action</h2>
+
+      <img
+        src="images/algo7.png"
+        alt="A tall freestanding structure built with colorful AlgoBuild blocks"
+        loading="lazy"
+      >
+    </section>
+
+    <section class="explore" aria-labelledby="explore-title">
+      <h2 id="explore-title">Explore</h2>
+
+      <div class="explore-grid">
+        <a href="mehroma.html">
+          <figure>
+            <img
+              src="images/red2.jpg"
+              alt="Mehroma floral earrings"
+              loading="lazy"
+            >
+            <figcaption>Mehroma</figcaption>
+          </figure>
+        </a>
+
+        <a href="labeling_ontology.html">
+          <figure>
+            <img
+              src="images/ontol1.jpg"
+              alt="Closet, a colored-pencil self-portrait"
+              loading="lazy"
+            >
+            <figcaption>Labeling Ontology</figcaption>
+          </figure>
+        </a>
+
+        <a href="spatial_design.html">
+          <figure>
+            <img
+              src="images/bench_render2.png"
+              alt="Sculptural Hudson River bench design"
+              loading="lazy"
+            >
+            <figcaption>Spatial Design</figcaption>
+          </figure>
+        </a>
+
+        <a href="museum_educator.html">
+          <figure>
+            <img
+              src="images/mus1.jpg"
+              alt="Fatima presenting in the museum"
+              loading="lazy"
+            >
+            <figcaption>Museum Educator</figcaption>
+          </figure>
+        </a>
+      </div>
+
+      <button
+        class="motion-toggle"
+        type="button"
+        aria-label="Pause cursor halo"
+        aria-pressed="false"
+        hidden
+      >
+        <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
+        </svg>
+        <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 4v16l13-8z"/>
+        </svg>
+      </button>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-bio">
+      <h2>Fatima Shah</h2>
+      <p>Carnegie Mellon University · MS in Computational Design</p>
+      <p>
+        Mount Holyoke College Graduate · Class of 2026<br>
+        Computer Science and Architecture Double Major
+      </p>
+    </div>
+
+    <div class="footer-contact">
+      <h2>Let’s Connect!</h2>
+
+      <a
+        class="email-link"
+        href="mailto:fatimas@andrew.cmu.edu"
+        aria-label="Email Fatima Shah"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14"/>
+          <path d="m3 5 9 8 9-8"/>
+        </svg>
+      </a>
+    </div>
+  </footer>
+</body>
+</html>
