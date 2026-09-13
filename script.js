@@ -175,6 +175,11 @@ updateControls();
         name: "AlgoBuild",
         file: "algobuild.html",
         image: "images/algo2.JPG"
+      },
+      {
+        name: "Crossy Road",
+        file: "crossy-road/",
+        image: "images/crossy-road.svg"
       }
     ];
   

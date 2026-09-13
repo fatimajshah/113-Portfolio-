@@ -1447,3 +1447,9 @@
       transform: none;
     }
   }
+
+/* Crossy Road uses the shared portfolio card layout. */
+.card-crossy-road {
+  --card-bg: #e2e5dc;
+  --card-accent: #545e47;
+}
