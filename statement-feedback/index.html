@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Artist Statement Feedback | Fatima's Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <script src="config.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+<main>
+  <a href="../index.html">← Back to portfolio</a>
+  <p class="eyebrow">Art &amp; Artificial Intelligence</p>
+  <h1>Artist Statement Feedback</h1>
+  <p>Get three constructive suggestions about clarity, specificity, and structure.
+     Keep your own voice and choose the suggestions that fit your intentions.</p>
+  <form id="feedback-form" novalidate>
+    <label for="statement">Your artist statement</label>
+    <textarea id="statement" rows="10" aria-describedby="limit privacy" placeholder="Paste your artist statement here…"></textarea>
+    <p id="limit" class="note">Maximum 5,000 characters.</p>
+    <p id="privacy" class="note">When you click Get Feedback, your text is sent to OpenAI through this site's backend. This tool does not save your statement.</p>
+    <button type="submit" id="submit-button">Get Feedback</button>
+  </form>
+  <p id="status" role="status" aria-live="polite"></p>
+  <p id="error" role="alert" hidden></p>
+  <section id="results" aria-labelledby="results-heading" tabindex="-1" hidden>
+    <h2 id="results-heading">Three suggestions</h2>
+    <article><h3>Clarity</h3><p id="clarity"></p></article>
+    <article><h3>Specificity</h3><p id="specificity"></p></article>
+    <article><h3>Structure</h3><p id="structure"></p></article>
+  </section>
+</main>
+</body>
+</html>
