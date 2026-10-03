@@ -91,7 +91,12 @@ extractButton.addEventListener('click', async () => {
       swatch.setAttribute('aria-hidden', 'true');
       const label = document.createElement('code');
       label.textContent = cluster.hex;
-      item.append(swatch, label);
+      
+      const percentage = (cluster.count / result.sampleCount) * 100;
+      const percentageLabel = document.createElement('span');
+      percentageLabel.textContent = `${percentage.toFixed(1)}% of sampled pixels`;
+      
+      item.append(swatch, label, percentageLabel);
       palette.append(item);
     }
     const count = result.clusters.length;
