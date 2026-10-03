@@ -35,9 +35,9 @@ node palette-lab/checks.mjs
 
 ### Files and data flow
 
-- `index.html`: labelled file input, sample and extraction buttons, image preview, original/reconstruction comparison, live status, and palette list.
+- `index.html`: labelled file input, sample, extraction, download, and reset buttons, image preview, original/reconstruction comparison, live status, and palette list.
 - `style.css`: neutral responsive presentation, visible focus, mobile stacking, and uncropped image display.
-- `app.js`: validates file type and size; decodes an image; displays it; downsizes it using Canvas; calls sampling and clustering; maps the working pixels to cleaned palette colours; renders swatches with textContent.
+- `app.js`: validates file type and size; decodes an image; displays it; downsizes it using Canvas; calls sampling and clustering; maps the working pixels to cleaned palette colours; renders swatches with textContent; copies HEX values; creates a local palette PNG; and resets state.
 - `clustering.js`: pure sampling, RGB distance, deterministic initialization, k-means, conservative tiny-cluster merging, palette mapping, and HEX conversion.
 - `assets/still-life.svg`: original geometric illustration made by the Codex assistant for this project, with no external asset or remote-image dependency. SVG is used only for this trusted bundled illustration; user selection accepts PNG/JPEG.
 - `checks.mjs`: small dependency-free algorithm checks.
@@ -87,6 +87,7 @@ Review the reconstruction visually with several images. In particular, compare w
 ### Later delivery checklist
 
 - [x] Stage 2: selectable 3–8 colours, percentages/distribution, reconstruction/comparison.
+- [x] Stage 3: copy HEX, palette PNG download, and reset behavior.
 - [ ] Stage 3: copy HEX, palette PNG export, complete reset, more samples, polish.
 - [ ] Stage 4: deployed-browser verification and portfolio card.
 - [ ] Personally review/modify code and complete README and prompt log.

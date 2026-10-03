@@ -15,6 +15,9 @@ const paletteSizeLabel = document.querySelector('#palette-size-label');
 const reconstruction = document.querySelector('#reconstruction');
 const comparisonEmpty = document.querySelector('#comparison-empty');
 const originalWorking = document.querySelector('#original-working');
+const downloadButton = document.querySelector('#download');
+const resetButton = document.querySelector('#reset');
+let currentResult = null;
 
 paletteSizeInput.addEventListener('change', () => {
   paletteSizeLabel.textContent = `${paletteSizeInput.value} colours`;
@@ -26,11 +29,67 @@ function setStatus(message, state = 'ready') {
   status.dataset.state = state;
 }
 
+function clearResults() {
+  currentResult = null;
+  palette.replaceChildren();
+  downloadButton.disabled = true;
+  reconstruction.hidden = true;
+  reconstruction.width = 0;
+  reconstruction.height = 0;
+  originalWorking.width = 0;
+  originalWorking.height = 0;
+  comparisonEmpty.hidden = false;
+}
+
+async function copyHex(button, hex) {
+  try {
+    await navigator.clipboard.writeText(hex);
+    const original = button.textContent;
+    button.textContent = 'Copied';
+    button.disabled = true;
+    setTimeout(() => { button.textContent = original; button.disabled = false; }, 1200);
+  } catch {
+    button.textContent = 'Copy failed';
+    setTimeout(() => { button.textContent = 'Copy HEX'; }, 1600);
+  }
+}
+
+function downloadPalette() {
+  if (!currentResult) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = 900;
+  canvas.height = Math.max(180, currentResult.clusters.length * 112 + 36);
+  const context = canvas.getContext('2d');
+  context.fillStyle = '#FCFAF7';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.font = '600 30px sans-serif';
+  context.fillStyle = '#282625';
+  context.fillText('Colour Palette Lab', 36, 48);
+  currentResult.clusters.forEach((cluster, index) => {
+    const y = 72 + index * 112;
+    context.fillStyle = cluster.hex;
+    context.fillRect(36, y, 160, 80);
+    context.fillStyle = '#282625';
+    context.font = '24px monospace';
+    context.fillText(cluster.hex, 224, y + 48);
+  });
+  canvas.toBlob(blob => {
+    if (!blob) { setStatus('Could not create the palette download.', 'error'); return; }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'colour-palette.png';
+    link.click();
+    URL.revokeObjectURL(url);
+    setStatus('Palette PNG downloaded.', 'success');
+  }, 'image/png');
+}
+
 async function selectImage(file, name) {
   const version = ++selectionVersion;
   selectedImage = null;
   extractButton.disabled = true;
-  palette.replaceChildren();
+  clearResults();
   reconstruction.hidden = true;
   reconstruction.width = 0;
   reconstruction.height = 0;
@@ -77,13 +136,27 @@ fileInput.addEventListener('change', () => {
   fileInput.value = ''; // Allow retrying the same file after an error.
 });
 document.querySelector('#sample').addEventListener('click', () => selectImage(null, 'Studio still life · original bundled sample'));
+downloadButton.addEventListener('click', downloadPalette);
+resetButton.addEventListener('click', () => {
+  selectionVersion++;
+  selectedImage = null;
+  clearResults();
+  preview.hidden = true;
+  preview.removeAttribute('src');
+  empty.hidden = false;
+  extractButton.disabled = true;
+  fileInput.value = '';
+  document.querySelector('#filename').textContent = 'Your inspiration goes here.';
+  document.querySelector('#image-info').textContent = 'Nothing selected';
+  setStatus('Choose an image to begin.');
+});
 
 extractButton.addEventListener('click', async () => {
   if (!selectedImage) return;
   const version = selectionVersion;
   const image = selectedImage;
   extractButton.disabled = true;
-  palette.replaceChildren();
+  clearResults();
   setStatus('Extracting colours…', 'loading');
   // Allow the loading message to paint before bounded synchronous computation.
   await new Promise(resolve => setTimeout(resolve, 30));
@@ -101,6 +174,7 @@ extractButton.addEventListener('click', async () => {
     const samples = samplePixels(context.getImageData(0, 0, canvas.width, canvas.height).data);
     const paletteSize = Number(document.querySelector('#palette-size').value);
     const result = mergeTinyClusters(kMeans(samples, paletteSize));
+    currentResult = result;
     // Map each working pixel to the nearest cleaned cluster colour for comparison.
     const reconstructedPixels = mapPixelsToPalette(context.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, result.clusters);
     reconstruction.width = reconstructedPixels.width;
@@ -120,10 +194,15 @@ extractButton.addEventListener('click', async () => {
       const percentage = (cluster.count / result.sampleCount) * 100;
       const percentageLabel = document.createElement('span');
       percentageLabel.textContent = `${percentage.toFixed(1)}% of sampled pixels`;
-      
-      item.append(swatch, label, percentageLabel);
+      const copyButton = document.createElement('button');
+      copyButton.type = 'button';
+      copyButton.className = 'copy-button';
+      copyButton.textContent = 'Copy HEX';
+      copyButton.addEventListener('click', () => copyHex(copyButton, cluster.hex));
+      item.append(swatch, label, percentageLabel, copyButton);
       palette.append(item);
     }
+    downloadButton.disabled = false;
     const count = result.clusters.length;
     setStatus(count < paletteSize
       ? `Palette ready: ${count} representative ${count === 1 ? 'colour' : 'colours'}; reconstructed comparison created. Very small blended edge clusters may be merged.`

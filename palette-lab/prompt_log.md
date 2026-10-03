@@ -8,7 +8,7 @@ Why these tools: shell tools allowed inspecting the Git checkout and writing pla
 
 The task initially opened in a projectless directory. The assistant located the matching Git checkout and asked for confirmation before editing. The user confirmed the matching remote. The checkout was clean on main at 119f115 before implementation; no applicable AGENTS.md files were found in the repository or checked ancestors. Existing portfolio CSS was inspected for visual context.
 
-Completed: Stage 1 and Stage 2 palette controls, local PNG/JPEG selection, original bundled sample, preview, deterministic k-means and transparency handling, tiny-cluster cleanup, percentages, original-versus-reconstructed comparison, loading/success/error states, focused checks and generated fixtures, README checklist. No homepage edits, Stage 3–4 implementation, commits, pushes, or deployment.
+Completed: Stage 1 and Stage 2 palette controls, local PNG/JPEG selection, original bundled sample, preview, deterministic k-means and transparency handling, tiny-cluster cleanup, percentages, original-versus-reconstructed comparison, copy HEX, palette PNG download, reset behavior, loading/success/error states, focused checks and generated fixtures, README checklist. No homepage edits, Stage 4 implementation, commits, pushes, or deployment.
 
 Verification: Node checks passed. Browser checks passed for sample extraction, valid PNG, replacement clearing, solid red, partial transparency, fully transparent error, corrupt-file error, recovery, and 375px mobile layout without horizontal overflow. See README for details and unverified manual checks. Do not interpret these as comprehensive browser or accessibility testing.
 
