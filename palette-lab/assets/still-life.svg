@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720">
+  <title>Studio still life</title>
+  <desc>Original geometric illustration of a terracotta vase, green stems and a golden sun on a cream and blue background.</desc>
+  <path fill="#E9DFCD" d="M0 0h960v720H0z"/>
+  <circle fill="#D9A742" cx="720" cy="190" r="100"/>
+  <path fill="#7F9C9C" d="M0 475h960v245H0z"/>
+  <ellipse fill="#334B44" cx="480" cy="596" rx="235" ry="32"/>
+  <path stroke="#334B44" stroke-width="15" fill="none" d="M468 360Q420 180 280 125M482 360Q510 180 625 95M472 330Q360 250 335 210"/>
+  <g fill="#334B44"><ellipse cx="336" cy="169" rx="67" ry="24" transform="rotate(30 336 169)"/><ellipse cx="548" cy="188" rx="67" ry="25" transform="rotate(-45 548 188)"/><ellipse cx="399" cy="256" rx="60" ry="24" transform="rotate(28 399 256)"/></g>
+  <path fill="#B86546" d="M409 325h130l-12 85q98 67 81 145-10 55-134 55t-134-55q-17-78 81-145z"/>
+  <ellipse fill="#334B44" cx="474" cy="325" rx="65" ry="12"/>
+</svg>

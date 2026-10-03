@@ -1,0 +1,22 @@
+// Run with node palette-lab/checks.mjs. No installation needed.
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+const source = await readFile(new URL('./clustering.js', import.meta.url), 'utf8');
+const { kMeans, samplePixels } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
+const red = [255, 0, 0], blue = [0, 0, 255];
+assert.deepEqual(kMeans([red, red], 5).clusters, [{ rgb: red, hex: '#FF0000', count: 2 }]);
+const two = kMeans([red, red, blue], 2);
+assert.deepEqual(two.clusters.map(c => c.hex), ['#FF0000', '#0000FF']);
+assert.deepEqual(two.clusters.map(c => c.count), [2, 1]);
+assert.equal(kMeans([red, blue], 8).clusters.length, 2);
+assert.deepEqual(kMeans([red, red, blue], 2), two);
+assert.deepEqual(samplePixels([0, 0, 0, 0, 255, 0, 0, 128]), [[255, 127, 127]]);
+assert.throws(() => kMeans(samplePixels([0, 0, 0, 0])), /No visible pixels/);
+const varied = Array.from({ length: 7000 }, (_, i) => [i % 256, (i * 7) % 256, (i * 13) % 256]);
+const rgba = varied.flatMap(rgb => [...rgb, 255]);
+assert.equal(samplePixels(rgba).length, 6000);
+const result = kMeans(samplePixels(rgba));
+assert.equal(result.clusters.reduce((n, c) => n + c.count, 0), 6000);
+assert.ok(result.clusters.every(c => /^#[0-9A-F]{6}$/.test(c.hex)));
+assert.deepEqual(result, kMeans(samplePixels(rgba)));
+console.log('PASS: solid colour; two colours and counts; excess k; repeatability; alpha on white; invisible-image error; sample bound; valid HEX; count total.');
