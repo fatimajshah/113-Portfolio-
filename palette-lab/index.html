@@ -29,10 +29,18 @@
           <img id="preview" alt="Selected image for colour analysis" hidden>
         </div>
         <p id="filename" class="caption">Your inspiration goes here.</p>
+        <div class="comparison" aria-label="Original and reconstructed image comparison">
+          <figure><figcaption>Original working image</figcaption><div class="comparison-stage"><p id="comparison-empty">Extract a palette to see the reconstruction.</p><canvas id="original-working" aria-label="Original working image"></canvas></div></figure>
+          <figure><figcaption>Palette reconstruction</figcaption><div class="comparison-stage"><canvas id="reconstruction" aria-label="Reconstructed image using the extracted palette" hidden></canvas></div></figure>
+        </div>
       </section>
       <section class="panel palette-panel" aria-labelledby="palette-heading">
-        <div class="section-heading"><h2 id="palette-heading">02 / Your palette</h2><span>5 colours</span></div>
-        <p class="palette-intro">A handful of representative colours, ready for your next idea.</p>
+        <div class="section-heading"><h2 id="palette-heading">02 / Your palette</h2><span id="palette-size-label">5 colours</span></div>
+        <p class="palette-intro">Representative colours, ready for your next idea. Very small blended edge clusters may be merged.</p>
+        <label class="palette-size-control" for="palette-size">Palette size
+          <select id="palette-size" aria-describedby="palette-size-help"><option value="3">3 colours</option><option value="4">4 colours</option><option value="5" selected>5 colours</option><option value="6">6 colours</option><option value="7">7 colours</option><option value="8">8 colours</option></select>
+        </label>
+        <p id="palette-size-help" class="control-help">Choose how many representative colours to look for.</p>
         <button id="extract" class="primary" type="button" disabled>Extract palette</button>
         <p id="status" role="status" aria-live="polite" aria-atomic="true">Choose an image to begin.</p>
         <ul id="palette" aria-label="Extracted colours"></ul>

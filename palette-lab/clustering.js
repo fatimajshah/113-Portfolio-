@@ -11,8 +11,48 @@ export function nearestIndex(colour, centres) {
   return best;
 }
 
+// Map every working-canvas pixel to its nearest cleaned palette colour.
+export function mapPixelsToPalette(rgba, width, height, clusters) {
+  if (rgba.length !== width * height * 4) throw new Error('Pixel data does not match canvas dimensions.');
+  const output = new Uint8ClampedArray(rgba.length);
+  const colours = clusters.map(cluster => cluster.rgb);
+  for (let offset = 0; offset < rgba.length; offset += 4) {
+    const colour = [rgba[offset], rgba[offset + 1], rgba[offset + 2]];
+    const mapped = colours[nearestIndex(colour, colours)];
+    output[offset] = mapped[0]; output[offset + 1] = mapped[1]; output[offset + 2] = mapped[2]; output[offset + 3] = 255;
+  }
+  return { data: output, width, height };
+}
+
 export function toHex(rgb) {
   return '#' + rgb.map(value => Math.round(value).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+// Below 1.5%, a cluster is usually a blended anti-aliased edge rather than a
+// meaningful palette colour. Larger accents stay visible.
+export const MIN_CLUSTER_SHARE = 0.015;
+
+export function mergeTinyClusters(result, threshold = MIN_CLUSTER_SHARE) {
+  const minimumCount = result.sampleCount * threshold;
+  const clusters = result.clusters.map(cluster => ({ ...cluster, rgb: cluster.rgb.slice() }));
+  if (clusters.length <= 1) return { ...result, clusters };
+  let tiny = clusters.filter(cluster => cluster.count < minimumCount).sort((a, b) => a.count - b.count);
+  const larger = clusters.filter(cluster => cluster.count >= minimumCount);
+  if (!larger.length) {
+    const largest = clusters.reduce((current, cluster) => cluster.count > current.count ? cluster : current);
+    larger.push(largest);
+    tiny = tiny.filter(cluster => cluster !== largest);
+  }
+  for (const small of tiny) {
+    if (larger.length === 1 && larger[0] === small) continue;
+    const target = larger.reduce((nearest, candidate) => squaredDistance(small.rgb, candidate.rgb) < squaredDistance(small.rgb, nearest.rgb) ? candidate : nearest);
+    const total = target.count + small.count;
+    target.rgb = target.rgb.map((channel, index) => (channel * target.count + small.rgb[index] * small.count) / total);
+    target.count = total;
+  }
+  const merged = larger.map(cluster => ({ ...cluster, hex: toHex(cluster.rgb), rgb: cluster.rgb.map(Math.round) }))
+    .sort((a, b) => b.count - a.count || a.hex.localeCompare(b.hex));
+  return { ...result, clusters: merged };
 }
 
 // Keep transparent pixels out; composite partial alpha on white before clustering.

@@ -35,10 +35,10 @@ node palette-lab/checks.mjs
 
 ### Files and data flow
 
-- `index.html`: labelled file input, sample and extraction buttons, image preview, live status, and palette list.
+- `index.html`: labelled file input, sample and extraction buttons, image preview, original/reconstruction comparison, live status, and palette list.
 - `style.css`: neutral responsive presentation, visible focus, mobile stacking, and uncropped image display.
-- `app.js`: validates file type and size; decodes an image; displays it; downsizes it using Canvas; calls sampling and clustering; renders swatches with textContent.
-- `clustering.js`: pure sampling, RGB distance, deterministic initialization, k-means, and HEX conversion.
+- `app.js`: validates file type and size; decodes an image; displays it; downsizes it using Canvas; calls sampling and clustering; maps the working pixels to cleaned palette colours; renders swatches with textContent.
+- `clustering.js`: pure sampling, RGB distance, deterministic initialization, k-means, conservative tiny-cluster merging, palette mapping, and HEX conversion.
 - `assets/still-life.svg`: original geometric illustration made by the Codex assistant for this project, with no external asset or remote-image dependency. SVG is used only for this trusted bundled illustration; user selection accepts PNG/JPEG.
 - `checks.mjs`: small dependency-free algorithm checks.
 - `test-fixtures/`: generated PNGs for solid red, partial transparency, full transparency, and a deliberately corrupt PNG for input checks.
@@ -52,7 +52,8 @@ node palette-lab/checks.mjs
 4. `initializeCentres()` starts with the first sample and repeatedly chooses the colour farthest from its nearest existing centre. If fewer distinct sampled colours exist, it initializes fewer centres.
 5. `kMeans()` uses `nearestIndex()` and `squaredDistance()` to assign samples, averages each cluster's RGB channels, and repeats. It stops when every squared centre movement is below 0.25 or after 30 iterations. Empty clusters retain their prior centre to avoid division by zero.
 6. Final centres are rounded, identical HEX colours merged, samples recounted, and unused centres removed. Clusters are sorted by sample count, then HEX. `toHex()` formats readable labels.
-7. The result includes `clusters` with `{rgb, hex, count}`, `sampleCount`, and `iterations`. Percentages are intentionally not implemented yet.
+7. The result includes `clusters` with `{rgb, hex, count}`, `sampleCount`, and `iterations`. Stage 2 passes a selected size from 3–8 into `kMeans()`, then merges clusters below `MIN_CLUSTER_SHARE = 0.015` into their nearest larger cluster. The UI percentages still use `count / sampleCount`, so they total approximately 100%.
+8. `mapPixelsToPalette()` performs the reconstruction mapping: each working RGBA pixel is assigned to the nearest cleaned cluster RGB value, and the resulting pixels are drawn into a same-sized Canvas. The working edge is still capped at 240 pixels, so comparison remains bounded and preserves aspect ratio.
 
 The limits keep computation modest (at most roughly 900,000 sample-to-centre comparisons in the main five-centre iteration loop). Image decoding still depends on the original dimensions and the browser; 10 MB is a compressed-file limit, not a decoded-memory guarantee. No worker is included because none was needed during these focused checks.
 
@@ -79,13 +80,13 @@ Image selection increments a version number; outdated decode/extraction work can
 - [ ] Use only the keyboard; check focus and status announcements with a screen reader.
 - [ ] Try another browser and a physical phone. Large decoded images and long filenames merit checking.
 
-### Your next contribution (Stage 2, not implemented)
+### Your next contribution
 
-Use each cluster's `count` and the result's `sampleCount` to calculate a percentage. Work in the extraction result rendering in `app.js`, add a proportional distribution display in `index.html`/`style.css`, and explain how rounding affects totals. Keep the analysis counts as data rather than deriving them from displayed labels.
+Review the reconstruction visually with several images. In particular, compare whether the cleaned palette preserves meaningful small accents and note where the RGB-distance limitation is visible. Keep the analysis counts as data rather than deriving them from displayed labels.
 
 ### Later delivery checklist
 
-- [ ] Stage 2: selectable 3–8 colours, percentages/distribution, reconstruction/comparison.
+- [x] Stage 2: selectable 3–8 colours, percentages/distribution, reconstruction/comparison.
 - [ ] Stage 3: copy HEX, palette PNG export, complete reset, more samples, polish.
 - [ ] Stage 4: deployed-browser verification and portfolio card.
 - [ ] Personally review/modify code and complete README and prompt log.

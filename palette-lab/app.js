@@ -1,4 +1,4 @@
-import { kMeans, samplePixels } from './clustering.js';
+import { kMeans, mapPixelsToPalette, mergeTinyClusters, samplePixels } from './clustering.js';
 
 const fileInput = document.querySelector('#file');
 const preview = document.querySelector('#preview');
@@ -10,6 +10,16 @@ const MAX_BYTES = 10 * 1024 * 1024;
 const WORKING_EDGE = 240; // At most 57,600 working pixels; sample at most 6,000.
 let selectionVersion = 0;
 let selectedImage = null;
+const paletteSizeInput = document.querySelector('#palette-size');
+const paletteSizeLabel = document.querySelector('#palette-size-label');
+const reconstruction = document.querySelector('#reconstruction');
+const comparisonEmpty = document.querySelector('#comparison-empty');
+const originalWorking = document.querySelector('#original-working');
+
+paletteSizeInput.addEventListener('change', () => {
+  paletteSizeLabel.textContent = `${paletteSizeInput.value} colours`;
+  if (selectedImage) setStatus('Palette size updated. Extract again to apply it.');
+});
 
 function setStatus(message, state = 'ready') {
   status.textContent = message;
@@ -21,6 +31,10 @@ async function selectImage(file, name) {
   selectedImage = null;
   extractButton.disabled = true;
   palette.replaceChildren();
+  reconstruction.hidden = true;
+  reconstruction.width = 0;
+  reconstruction.height = 0;
+  comparisonEmpty.hidden = false;
   preview.hidden = true;
   preview.removeAttribute('src');
   empty.hidden = false;
@@ -49,7 +63,7 @@ async function selectImage(file, name) {
     document.querySelector('#filename').textContent = name;
     document.querySelector('#image-info').textContent = `${image.naturalWidth} × ${image.naturalHeight}`;
     extractButton.disabled = false;
-    setStatus('Image ready. Extract a five-colour palette.');
+    setStatus('Image ready. Extract a representative palette.');
   } catch (error) {
     if (version === selectionVersion) setStatus(error.message, 'error');
   } finally {
@@ -81,8 +95,19 @@ extractButton.addEventListener('click', async () => {
     canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
     const context = canvas.getContext('2d', { willReadFrequently: true });
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    originalWorking.width = canvas.width;
+    originalWorking.height = canvas.height;
+    originalWorking.getContext('2d').drawImage(canvas, 0, 0);
     const samples = samplePixels(context.getImageData(0, 0, canvas.width, canvas.height).data);
-    const result = kMeans(samples, 5);
+    const paletteSize = Number(document.querySelector('#palette-size').value);
+    const result = mergeTinyClusters(kMeans(samples, paletteSize));
+    // Map each working pixel to the nearest cleaned cluster colour for comparison.
+    const reconstructedPixels = mapPixelsToPalette(context.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, result.clusters);
+    reconstruction.width = reconstructedPixels.width;
+    reconstruction.height = reconstructedPixels.height;
+    reconstruction.getContext('2d').putImageData(new ImageData(reconstructedPixels.data, reconstructedPixels.width, reconstructedPixels.height), 0, 0);
+    reconstruction.hidden = false;
+    comparisonEmpty.hidden = true;
     for (const cluster of result.clusters) {
       const item = document.createElement('li');
       const swatch = document.createElement('span');
@@ -100,9 +125,9 @@ extractButton.addEventListener('click', async () => {
       palette.append(item);
     }
     const count = result.clusters.length;
-    setStatus(count < 5
-      ? `Palette ready: ${count} ${count === 1 ? 'colour' : 'colours'}. Fewer than five distinct representative colours remain after sampling and rounding.`
-      : 'Palette ready: five representative colours.', 'success');
+    setStatus(count < paletteSize
+      ? `Palette ready: ${count} representative ${count === 1 ? 'colour' : 'colours'}; reconstructed comparison created. Very small blended edge clusters may be merged.`
+      : 'Palette ready: representative colours and reconstructed comparison created. Very small blended edge clusters may be merged.', 'success');
   } catch (error) {
     setStatus(error.message || 'Could not analyse this image. Try another JPG or PNG.', 'error');
   } finally {
