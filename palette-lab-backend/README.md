@@ -55,7 +55,23 @@ Send `Content-Type: application/json` to `POST /generate` with `{"description":"
 
 Limits are global across clients within one Python process: five admitted generation calls per rolling 60 seconds, with one call in flight. Excess requests are rejected before OpenAI is called. Failed admitted calls count; invalid input, preflights, and rejected requests do not. A lock protects the counters. Limits reset on restart and are not shared across workers or hosts; they are not a billing cap. No queue or automatic retries are used.
 
-The `env -u OPENAI_API_KEY` startup command removes an inherited key for this process so the backend `.env` is used. For deployment with an intentional environment key, use `python app.py`; environment-variable support and precedence remain intact.
+The `env -u OPENAI_API_KEY` local startup command removes an inherited key for this process so the backend `.env` is used. Production startup preserves environment-variable support and precedence.
+
+### Render configuration (prepared, not deployed)
+
+- Root directory: `palette-lab-backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `sh start.sh`
+- Health-check path: `/health`
+- Set `OPENAI_API_KEY` as a secret environment variable in Render.
+- Set `ALLOWED_ORIGINS=https://fatimajshah.github.io` (append `,http://127.0.0.1:8013` if local frontend access is needed).
+- Render supplies `PORT`; the start script requires it and binds to `0.0.0.0:$PORT`.
+
+The script runs Gunicorn with one worker, four threads, and 180-second worker and graceful-shutdown timeouts, longer than the SDK's 120-second network timeout. A threaded worker can continue sending heartbeats during a request, so its timeout is not a request deadline. Model settings, zero retries, validation, and usage limits are unchanged. Keep exactly one service instance and one worker: counters are process-local, reset on restart, and are not shared across instances. Threads allow health checks and excess-request rejection while generation is pending.
+
+The paid `/generate` endpoint needs access protection before public use. CORS and process-local limits do not authenticate callers or enforce a billing cap. A secret embedded in frontend JavaScript would not protect access. No authentication or deployment was added here. The frontend still points to localhost; a deployed backend URL and appropriate access protection must be configured separately.
+
+References: [Render Flask deployment](https://render.com/docs/deploy-flask), [Render port binding](https://render.com/docs/web-services#port-binding), and [Gunicorn threaded workers](https://docs.gunicorn.org/en/stable/design.html#how-many-threads).
 
 Server-side settings: `gpt-image-1-mini`, `quality="low"`, `size="1024x1024"`, `n=1`, `output_format="png"`. This is an economical draft configuration. The official Python SDK receives a 120-second request timeout and `max_retries=0`. The SDK timeout limits network operations; it is not a guaranteed total wall-clock deadline. GPT Image responses contain `data[0].b64_json`; no deprecated `response_format` parameter is sent.
 
