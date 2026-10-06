@@ -45,6 +45,21 @@
         <div class="result-actions"><button id="download" type="button" disabled>Download palette</button><button id="reset" type="button">Reset</button></div>
         <p id="status" role="status" aria-live="polite" aria-atomic="true">Choose an image to begin.</p>
         <ul id="palette" aria-label="Extracted colours"></ul>
+        <section class="generation" aria-labelledby="generation-heading">
+          <h3 id="generation-heading">Palette-guided generation</h3>
+          <p>Describe an idea and generate an image guided by the extracted palette. Exact colour matching is not guaranteed.</p>
+          <label for="description">Image description</label>
+          <textarea id="description" maxlength="1000" rows="4" placeholder="A quiet still life beside a sunny window" aria-describedby="description-help"></textarea>
+          <p id="description-help" class="control-help">Up to 1,000 characters. The description and HEX palette are sent to the local backend and OpenAI; your uploaded reference image stays in this browser.</p>
+          <button id="generate" class="primary" type="button" disabled>Generate with this palette</button>
+          <p id="generation-status" role="status" aria-live="polite">Extract a palette and add a description to begin.</p>
+          <img id="generated-image" alt="Generated image guided by the extracted colour palette" hidden>
+          <div id="generated-analysis" hidden>
+            <h4>Generated image palette</h4>
+            <p>Approximate colours found in the generated image. The generator is palette-guided, so this is a comparison rather than an exact match.</p>
+            <ul id="generated-palette" aria-label="Generated image palette"></ul>
+          </div>
+        </section>
       </section>
     </div>
     <footer><p>Small palette, many possibilities.</p><p>Transparent areas are skipped; translucent colours are blended onto white.</p></footer>

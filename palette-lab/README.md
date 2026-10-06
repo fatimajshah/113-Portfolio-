@@ -1,98 +1,253 @@
-# Colour Palette Lab — Stage 1
+# Colour Palette Lab
 
-## My README checklist (write these in your own words)
+Colour Palette Lab is a browser-based tool for exploring the colour structure of an image. It uses k-means clustering to extract a small representative palette, calculate the approximate share of each colour, and reconstruct the image using only those colours.
 
-- [ ] **What it does:** [Describe the intended audience and purpose.]
-- [ ] **How to use it:** [Describe selecting an image, extracting, and reading a palette.]
-- [ ] **Features I am proud of:** [Choose features and explain why.]
-- [ ] **How to run it locally:** [Try the commands below and write your own explanation.]
-- [ ] **Images and secrets:** [Explain local processing and why no credentials are needed.]
-- [ ] **How I used AI:** [Describe what you accepted, questioned, changed, and learned; link prompt_log.md.]
-- [ ] **Sources and credits:** [Review the original sample credit below; add any sources you actually use.]
-- [ ] **Limitations:** [Explain sampling, RGB distance, and Stage 1 scope in your own words.]
-- [ ] **My own code contributions:** [Describe actual changes after you make them.]
+The project was created for CMU 15-113: Effective Coding with AI, Project 2.
 
-## AI-generated technical notes
+## What it does
 
-### Run locally
+The tool is intended for artists, designers, and anyone interested in understanding the visual colour structure of an image.
+A user can upload a JPG or PNG, choose how many representative colours to extract, and compare the original image with a simplified reconstruction made from the extracted palette.
 
-From the portfolio repository root:
+The app processes images locally in the browser. Uploaded images are not sent to a server.
+
+## How to use it
+
+1. Choose a JPG or PNG image, or click Try sample.
+2. Select a palette size between 3 and 8 colours.
+3. Click Extract palette.
+4. Review the extracted swatches, HEX values, and percentages.
+5. Compare the original image with the reconstructed image.
+6. Click Copy HEX to copy an individual colour value.
+7. Click Download palette to save the palette as a PNG.
+8. Click Reset to clear the current image and begin again.
+
+The percentages describe the distribution of the sampled working image. They represent colour clusters calculated by the algorithm and may not always match the semantic colours a person would name when looking at the image.
+
+## Features
+
+- JPG and PNG image selection
+- Bundled sample image
+- Palette-size selection from 3 to 8 colours
+- Deterministic k-means colour clustering
+- HEX colour values
+- Sampled-pixel percentages
+- Original-versus-reconstructed image comparison
+- Tiny-cluster cleanup for insignificant edge colours
+- Copyable HEX values
+- Downloadable palette PNG
+- Reset and same-file re-selection
+- Transparent-image handling
+- Invalid-file and oversized-file errors
+- Loading, success, and error states
+- Responsive mobile layout
+- Local browser-only processing
+
+## Public version
+
+The deployed version is available here:
+
+[Open Colour Palette Lab](https://fatimajshah.github.io/113-Portfolio-/palette-lab/)
+
+This is the existing GitHub Pages frontend URL. Public availability of the latest changes has not been verified in this finalization pass. `config.js` still targets `http://127.0.0.1:5001`, so generation is configured for local development, not a deployed backend. GitHub Pages cannot run the Flask backend.
+
+## Project structure
+
+```text
+palette-lab/
+├── index.html
+├── style.css
+├── app.js
+├── clustering.js
+├── checks.mjs
+├── README.md
+├── prompt_log.md
+├── assets/
+│   └── still-life.svg
+└── test-fixtures/
+```
+
+### `index.html`
+
+Contains the page structure, labelled image input, sample button, palette-size selector, extraction button, image comparison, palette list, download button, reset button, and live status message.
+
+### `style.css`
+
+Controls the visual presentation, responsive layout, visible focus states, colour swatches, buttons, image comparison, and mobile stacking.
+
+### `app.js`
+
+Manages the interface and image workflow. It validates files, decodes images, creates a smaller working Canvas, calls the clustering functions, calculates percentages, renders the palette, creates the reconstructed image, copies HEX values, downloads a palette PNG, and resets the application state.
+
+### `clustering.js`
+
+Contains the pure colour-analysis functions:
+
+- RGB distance calculation
+- Nearest-colour lookup
+- Pixel sampling
+- Transparency handling
+- Deterministic centre initialization
+- K-means clustering
+- Tiny-cluster merging
+- Pixel-to-palette mapping
+- RGB-to-HEX conversion
+
+### `checks.mjs`
+
+Contains small dependency-free checks for the clustering algorithm and important edge cases.
+
+### `assets/still-life.svg`
+
+A local geometric sample illustration created specifically for this project. It does not depend on an external image URL.
+
+### `test-fixtures/`
+
+Contains small generated PNG fixtures for testing solid colours, transparency, and corrupt-image handling.
+
+## How the algorithm works
+
+1. `selectImage()` decodes the selected image and updates the preview.
+2. The extraction process creates a smaller working image while preserving the original aspect ratio. The longest edge is limited to 240 pixels.
+3. `samplePixels()` ignores fully transparent pixels, composites partially transparent pixels against white, and selects at most 6,000 visible RGB samples.
+4. `initializeCentres()` chooses deterministic starting colours. It begins with the first unique sample and repeatedly selects the colour farthest from its nearest existing centre.
+5. `kMeans()` assigns each sample to its nearest centre, averages the RGB values in each cluster, and repeats until the centres stabilize or 30 iterations have passed.
+6. Final centres are rounded to whole RGB values. Identical HEX colours are merged, samples are recounted, and unused clusters are removed.
+7. Each final cluster contains:
+
+```js
+{
+  rgb: [red, green, blue],
+  hex: "#RRGGBB",
+  count: number
+}
+```
+
+The result also includes `sampleCount` and the number of iterations used.
+
+8. The interface calculates each percentage using:
+
+```js
+cluster.count / result.sampleCount
+```
+
+9. Clusters below the 1.5% threshold are merged into the nearest larger cluster. Their pixels are still represented in the final counts rather than discarded.
+10. `mapPixelsToPalette()` assigns every working-image pixel to its nearest cleaned palette colour and creates the reconstructed image.
+
+The computation is bounded so that large images do not create an unnecessarily expensive clustering operation. The working Canvas contains at most approximately 57,600 pixels, and the clustering step uses at most 6,000 samples.
+
+## Transparency and privacy
+
+Fully transparent pixels are excluded from colour analysis.
+
+Partially transparent pixels are composited against white before clustering so that they become visible RGB colours.
+
+Uploaded reference images and palette analysis stay in the browser. Optional generation sends the description and HEX palette through the backend to OpenAI; it does not upload the reference image. The frontend does not use analytics or persist images between visits.
+
+Local extraction needs no backend or key. Optional generation requires the Flask backend and a server-side OpenAI API key. No API key belongs in frontend files, and no database is used.
+
+Temporary object URLs created for selected files are revoked after image decoding. User-provided filenames are rendered as text rather than inserted as raw HTML.
+
+## My code contributions
+
+I added the percentage calculation in `app.js` using each cluster’s count divided by the total sampled-pixel count. I connected the result to the visible percentage label beside each HEX value.
+
+I also added defensive validation inside `initializeCentres()` so the function reports an error when it receives no visible colour samples. This covers the case where a fully transparent image produces no usable RGB samples.
+
+I reviewed and tested the small-cluster cleanup logic, including how the 1.5% threshold affects anti-aliased edge colours. Tiny clusters are merged into nearby larger clusters while their pixel counts remain represented in the final result.
+
+I also reviewed the data flow from image selection through Canvas sampling, clustering, reconstruction, and interface rendering so that I can explain the main functions and design decisions.
+
+## How I used AI
+
+I used ChatGPT for brainstorming, assignment planning, code explanations, debugging support, and review. I used Codex to help implement the project in stages, inspect the repository, write code, and run focused checks.
+
+I questioned the initial output when blended image edges appeared as an additional colour that did not match the visual categories I expected. This led to palette-size controls, clearer percentage wording, and a small-cluster cleanup rule instead of assuming that the first result was perceptually perfect.
+
+I also reviewed the generated code and made my own changes, including the percentage calculation and empty-sample validation. I tested the application with simple colour images, transparent images, invalid files, and real photographs.
+
+The development record, including prompts and tool choices, is in [prompt_log.md](prompt_log.md).
+
+## Sources and credits
+
+The bundled still-life illustration is stored locally in `assets/still-life.svg` and was created specifically for this project.
+
+The frontend uses no external runtime libraries. The colour analysis is implemented in JavaScript using standard RGB distance calculations and k-means clustering. The optional Python backend uses Flask, the official OpenAI SDK, and python-dotenv.
+
+## Limitations
+
+The app analyzes a smaller working image rather than every pixel of the original file. This keeps the interface responsive, but very small visual details may not affect the extracted palette.
+
+The algorithm uses RGB distance. RGB distance is simple and easy to explain, but it does not model human colour perception perfectly. Colours that are mathematically close in RGB may not look equally close to a person.
+
+Canvas resizing can produce blended edge colours. These may appear as small additional clusters. The 1.5% cleanup rule merges very small clusters into nearby larger colours, but a meaningful accent occupying a very small area could also be merged.
+
+The reconstructed image is an approximation, not a lossless copy. Percentages describe the sampled working image rather than the exact area of the original full-resolution image.
+
+The app currently analyzes one image at a time and does not save palettes between visits.
+
+## Palette-guided generation
+
+After extracting a palette, enter a description and use Generate with this palette. The frontend sends only the description and final cleaned HEX palette to the local backend at `http://127.0.0.1:5001`. The uploaded reference image remains local in the browser. Generated images preserve their natural aspect ratio; exact HEX matching is not guaranteed.
+
+The frontend allows one pending generation request. Resetting, selecting another image, or extracting a new palette invalidates the pending response and clears the generated image. The browser may abandon its wait while the backend or provider continues processing, so an abandoned request may still consume provider time or quota. No automatic retry is performed.
+
+After the generated image decodes, the frontend runs the same bounded Canvas sampling, k-means, tiny-cluster cleanup, HEX conversion, and percentage calculation used for the source image. It displays the generated-image palette separately. This comparison is approximate because generation is guided by the palette rather than constrained to exact HEX values; it does not produce a single accuracy score.
+
+Run the frontend from the repository root in terminal 1:
 
 ```sh
 python3 -m http.server 8013 --bind 127.0.0.1
 ```
 
-Open http://127.0.0.1:8013/palette-lab/ . Stop the server with Ctrl+C.
-Use HTTP because JavaScript modules can be blocked when opening index.html directly.
-No package installation, build process, backend, database, or API key is required.
-The local server serves files; it does not receive selected image data.
-
-Optional focused checks, if Node.js is installed:
+Open http://127.0.0.1:8013/palette-lab/ . In terminal 2, starting from the repository root:
 
 ```sh
-node palette-lab/checks.mjs
+cd palette-lab-backend
+env -u OPENAI_API_KEY .venv/bin/python app.py
 ```
 
-### Files and data flow
+The backend owns its API key and model settings. See `../palette-lab-backend/README.md` for backend setup and usage limits.
 
-- `index.html`: labelled file input, sample, extraction, download, and reset buttons, image preview, original/reconstruction comparison, live status, and palette list.
-- `style.css`: neutral responsive presentation, visible focus, mobile stacking, and uncropped image display.
-- `app.js`: validates file type and size; decodes an image; displays it; downsizes it using Canvas; calls sampling and clustering; maps the working pixels to cleaned palette colours; renders swatches with textContent; copies HEX values; creates a local palette PNG; and resets state.
-- `clustering.js`: pure sampling, RGB distance, deterministic initialization, k-means, conservative tiny-cluster merging, palette mapping, and HEX conversion.
-- `assets/still-life.svg`: original geometric illustration made by the Codex assistant for this project, with no external asset or remote-image dependency. SVG is used only for this trusted bundled illustration; user selection accepts PNG/JPEG.
-- `checks.mjs`: small dependency-free algorithm checks.
-- `test-fixtures/`: generated PNGs for solid red, partial transparency, full transparency, and a deliberately corrupt PNG for input checks.
-- `prompt_log.md`: exact initial request and honest development record.
+## Verification
 
-### How the algorithm works
+### AI-generated finalization notes
 
-1. `selectImage()` decodes the image and updates preview state.
-2. The extraction handler in `app.js` draws an aspect-ratio-preserving working copy with a maximum edge of 240 pixels (at most 57,600 working pixels).
-3. `samplePixels()` ignores zero-alpha pixels and composites partial alpha against white. It picks up to 6,000 evenly spaced visible pixels. This bounds clustering cost and preserves repeatability without random sampling.
-4. `initializeCentres()` starts with the first sample and repeatedly chooses the colour farthest from its nearest existing centre. If fewer distinct sampled colours exist, it initializes fewer centres.
-5. `kMeans()` uses `nearestIndex()` and `squaredDistance()` to assign samples, averages each cluster's RGB channels, and repeats. It stops when every squared centre movement is below 0.25 or after 30 iterations. Empty clusters retain their prior centre to avoid division by zero.
-6. Final centres are rounded, identical HEX colours merged, samples recounted, and unused centres removed. Clusters are sorted by sample count, then HEX. `toHex()` formats readable labels.
-7. The result includes `clusters` with `{rgb, hex, count}`, `sampleCount`, and `iterations`. Stage 2 passes a selected size from 3–8 into `kMeans()`, then merges clusters below `MIN_CLUSTER_SHARE = 0.015` into their nearest larger cluster. The UI percentages still use `count / sampleCount`, so they total approximately 100%.
-8. `mapPixelsToPalette()` performs the reconstruction mapping: each working RGBA pixel is assigned to the nearest cleaned cluster RGB value, and the resulting pixels are drawn into a same-sized Canvas. The working edge is still capped at 240 pixels, so comparison remains bounded and preserves aspect ratio.
+The existing Node algorithm checks and frontend static generation checks passed. Added behavioral offline checks executing the actual generation handlers with mocked DOM/fetch for repeated-click suppression, request payload, reset cancellation, stale errors, and stale successes; these passed. All 11 backend offline tests passed. These do not constitute full browser or deployed end-to-end verification. The user previously reported successful local real generation. No paid calls were made during finalization.
 
-The limits keep computation modest (at most roughly 900,000 sample-to-centre comparisons in the main five-centre iteration loop). Image decoding still depends on the original dimensions and the browser; 10 MB is a compressed-file limit, not a decoded-memory guarantee. No worker is included because none was needed during these focused checks.
+Historical browser checks below are from earlier stages; repeat them after deployment. Source and generated palettes report sampled-pixel percentages, not an accuracy score. There is no proportional distribution chart currently.
 
-RGB distance does not match human perception uniformly. Downsampling and deterministic sampling may miss tiny areas, and Canvas resizing introduces blended edge colours. Results repeat for the same decoded pixels and settings, but different browsers' image decoding/colour management may differ slightly. Percentages in the next stage will estimate sampled working-image coverage, not exact original-image area.
+The focused Node checks cover:
 
-### State and privacy
+- One solid colour
+- Two known colours and their counts
+- Requesting more centres than distinct colours
+- Repeatability
+- Partial transparency
+- Fully transparent images
+- Bounded sample counts
+- Valid HEX formatting
+- Total cluster counts
+- Tiny-cluster merging
+- Percentage totals
+- Reconstruction dimensions
 
-Image selection increments a version number; outdated decode/extraction work cannot replace newer selection state. Changing selection clears the palette and disables extraction until ready. Blob URLs are revoked after decoding, including on errors. Selected filenames are rendered as text, never HTML. No image upload, analytics, third-party runtime request, or persistent image storage is implemented.
+The browser was also used to verify:
 
-### Verification performed on 2026-10-03
+- Loading the bundled sample
+- Replacing the sample with a user image
+- Displaying the original and reconstructed images
+- Selecting different palette sizes
+- Copying HEX values
+- Enabling and using palette download
+- Resetting the interface
+- Selecting the same file again after reset
+- Stacked comparison layout on a narrow viewport
+- Generated-image decoding and separate palette analysis contract
 
-- Node v20.12.2: all assertions in checks.mjs passed, covering one colour, two known colours/counts, requested k greater than distinct colours, repeatability, partial alpha on white, invisible-image error, sample limit, valid HEX, and count totals.
-- Codex in-app browser: initial empty state and disabled extraction observed; sample loaded and produced five swatches.
-- Valid red PNG replaced the sample, cleared prior results, and produced one #FF0000 swatch with the fewer-colours explanation.
-- Partial-alpha red PNG produced #FF7F7F; fully transparent PNG produced the helpful no-visible-pixels error.
-- Corrupt PNG produced a decode error and disabled extraction; selecting the sample recovered successfully.
-- 375 × 812 viewport: stacked panels visually inspected; document width and viewport width both measured 375 px, so no horizontal overflow.
-- Reviewed selection-version guards and URL cleanup in source. Did not simulate a slow concurrent decode race.
+## Where AI got it wrong
+In the early stages of development, the tool was detecting colors that weren't obviously present in the photograph, but were present in small amounts. As a result, the palette would not match the photogrpahy visually. In that sense, AI was able to help me write code for a theoretically correct version of the project, but not one that made sense visually. I had to use my own judgement to add a 1.5% threshold that merges very small clusters into nearby larger clusters, making the results more visually consistent with the image.
 
-### Remaining manual checks
+## Future improvements
 
-- [ ] Try a personal JPG, a large PNG below 10 MB, and a file over 10 MB.
-- [ ] Try an unsupported file and rapidly replace images while loading/extracting.
-- [ ] Use only the keyboard; check focus and status announcements with a screen reader.
-- [ ] Try another browser and a physical phone. Large decoded images and long filenames merit checking.
-
-### Your next contribution
-
-Review the reconstruction visually with several images. In particular, compare whether the cleaned palette preserves meaningful small accents and note where the RGB-distance limitation is visible. Keep the analysis counts as data rather than deriving them from displayed labels.
-
-### Later delivery checklist
-
-- [x] Stage 2: selectable 3–8 colours, percentages/distribution, reconstruction/comparison.
-- [x] Stage 3: copy HEX, palette PNG download, and reset behavior.
-- [ ] Stage 3: copy HEX, palette PNG export, complete reset, more samples, polish.
-- [ ] Stage 4: deployed-browser verification and portfolio card.
-- [ ] Personally review/modify code and complete README and prompt log.
-- [ ] Record actual work sessions and make meaningful commits as work progresses.
-- [ ] Midpoint check-in, narrated demo, final presentation, submission form.
-- [ ] Confirm public source and deployed link before the assignment deadline: Wednesday October 7, 11:59 p.m.
-
-Suggested Stage 1 commit message after your review: `Add Colour Palette Lab stage one with local k-means extraction`
+Possible future improvements include using a more perceptually accurate colour space and performing more extensive accessibility testing.

@@ -1,4 +1,5 @@
 import { kMeans, mapPixelsToPalette, mergeTinyClusters, samplePixels } from './clustering.js';
+import { BACKEND_BASE_URL } from './config.js';
 
 const fileInput = document.querySelector('#file');
 const preview = document.querySelector('#preview');
@@ -18,19 +19,72 @@ const originalWorking = document.querySelector('#original-working');
 const downloadButton = document.querySelector('#download');
 const resetButton = document.querySelector('#reset');
 let currentResult = null;
+const descriptionInput = document.querySelector('#description');
+const generateButton = document.querySelector('#generate');
+const generationStatus = document.querySelector('#generation-status');
+const generatedImage = document.querySelector('#generated-image');
+const generatedAnalysis = document.querySelector('#generated-analysis');
+const generatedPalette = document.querySelector('#generated-palette');
+let generationVersion = 0;
+let generationController = null;
+let generatedObjectUrl = null;
 
 paletteSizeInput.addEventListener('change', () => {
   paletteSizeLabel.textContent = `${paletteSizeInput.value} colours`;
   if (selectedImage) setStatus('Palette size updated. Extract again to apply it.');
 });
+descriptionInput.addEventListener('input', updateGenerateAvailability);
 
 function setStatus(message, state = 'ready') {
   status.textContent = message;
   status.dataset.state = state;
 }
 
+function setGenerationStatus(message, state = 'ready') { generationStatus.textContent = message; generationStatus.dataset.state = state; }
+function updateGenerateAvailability() { generateButton.disabled = !currentResult || !descriptionInput.value.trim() || Boolean(generationController); }
+function clearGeneratedResult(message = 'Extract a palette and add a description to begin.') {
+  generationVersion++;
+  if (generationController) generationController.abort();
+  generationController = null;
+  if (generatedObjectUrl) URL.revokeObjectURL(generatedObjectUrl);
+  generatedObjectUrl = null;
+  generatedImage.hidden = true;
+  generatedImage.removeAttribute('src');
+  generatedAnalysis.hidden = true;
+  generatedPalette.replaceChildren();
+  generateButton.disabled = true;
+  setGenerationStatus(message);
+}
+
+function analyzeImage(image, paletteSize) {
+  const scale = Math.min(1, WORKING_EDGE / Math.max(image.naturalWidth, image.naturalHeight));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+  return { result: mergeTinyClusters(kMeans(samplePixels(pixels), paletteSize)), width: canvas.width, height: canvas.height };
+}
+
+function renderComparisonPalette(list, result) {
+  list.replaceChildren();
+  for (const cluster of result.clusters) {
+    const item = document.createElement('li');
+    const swatch = document.createElement('span');
+    swatch.className = 'swatch'; swatch.style.backgroundColor = cluster.hex; swatch.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('code'); label.textContent = cluster.hex;
+    const percentage = document.createElement('span');
+    percentage.className = 'percentage-label';
+    percentage.textContent = `— ${((cluster.count / result.sampleCount) * 100).toFixed(1)}% of sampled pixels`;
+    item.append(swatch, label, percentage);
+    list.append(item);
+  }
+}
+
 function clearResults() {
   currentResult = null;
+  clearGeneratedResult();
   palette.replaceChildren();
   downloadButton.disabled = true;
   reconstruction.hidden = true;
@@ -137,6 +191,41 @@ fileInput.addEventListener('change', () => {
 });
 document.querySelector('#sample').addEventListener('click', () => selectImage(null, 'Studio still life · original bundled sample'));
 downloadButton.addEventListener('click', downloadPalette);
+generateButton.addEventListener('click', async () => {
+  if (!currentResult || !descriptionInput.value.trim() || generationController) return;
+  clearGeneratedResult('Generating image…');
+  const version = generationVersion;
+  generationController = new AbortController();
+  const controller = generationController;
+  updateGenerateAvailability();
+  setGenerationStatus('Generating image…', 'loading');
+  try {
+    const response = await fetch(`${BACKEND_BASE_URL}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+      body: JSON.stringify({ description: descriptionInput.value.trim(), colours: currentResult.clusters.map(cluster => cluster.hex) }) });
+    const payload = await response.json().catch(() => ({}));
+    if (version !== generationVersion) return;
+    if (!response.ok) throw new Error(payload.error?.message || `Backend request failed (${response.status}).`);
+    if (typeof payload.image_base64 !== 'string' || typeof payload.mime_type !== 'string') throw new Error('Backend returned an invalid image response.');
+    const binary = Uint8Array.from(atob(payload.image_base64), char => char.charCodeAt(0));
+    if (generatedObjectUrl) URL.revokeObjectURL(generatedObjectUrl);
+    generatedObjectUrl = URL.createObjectURL(new Blob([binary], { type: payload.mime_type }));
+    generatedImage.src = generatedObjectUrl;
+    generatedImage.hidden = false;
+    await generatedImage.decode();
+    if (version !== generationVersion) return;
+    const generatedAnalysisResult = analyzeImage(generatedImage, Number(paletteSizeInput.value));
+    if (generatedAnalysisResult.width < 1 || generatedAnalysisResult.height < 1) throw new Error('Generated image has no usable dimensions.');
+    renderComparisonPalette(generatedPalette, generatedAnalysisResult.result);
+    generatedAnalysis.hidden = false;
+    setGenerationStatus('Generated image ready. Its colours were guided by your palette.', 'success');
+  } catch (error) {
+    if (version !== generationVersion) return;
+    if (error.name === 'AbortError') setGenerationStatus('Generation was abandoned. The backend may still finish processing it.');
+    else setGenerationStatus(error.message || 'Could not reach the generation backend.', 'error');
+  } finally {
+    if (version === generationVersion) { generationController = null; updateGenerateAvailability(); }
+  }
+});
 resetButton.addEventListener('click', () => {
   selectionVersion++;
   selectedImage = null;
@@ -146,9 +235,11 @@ resetButton.addEventListener('click', () => {
   empty.hidden = false;
   extractButton.disabled = true;
   fileInput.value = '';
+  descriptionInput.value = '';
   document.querySelector('#filename').textContent = 'Your inspiration goes here.';
   document.querySelector('#image-info').textContent = 'Nothing selected';
   setStatus('Choose an image to begin.');
+  clearGeneratedResult();
 });
 
 extractButton.addEventListener('click', async () => {
@@ -175,6 +266,7 @@ extractButton.addEventListener('click', async () => {
     const paletteSize = Number(document.querySelector('#palette-size').value);
     const result = mergeTinyClusters(kMeans(samples, paletteSize));
     currentResult = result;
+    clearGeneratedResult('Extracted palette ready. Add a description to generate an image.');
     // Map each working pixel to the nearest cleaned cluster colour for comparison.
     const reconstructedPixels = mapPixelsToPalette(context.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, result.clusters);
     reconstruction.width = reconstructedPixels.width;
@@ -191,9 +283,11 @@ extractButton.addEventListener('click', async () => {
       const label = document.createElement('code');
       label.textContent = cluster.hex;
       
+      //my own conribution: add percentage of sampled pixels to the label
       const percentage = (cluster.count / result.sampleCount) * 100;
       const percentageLabel = document.createElement('span');
       percentageLabel.textContent = `${percentage.toFixed(1)}% of sampled pixels`;
+
       const copyButton = document.createElement('button');
       copyButton.type = 'button';
       copyButton.className = 'copy-button';
@@ -203,6 +297,7 @@ extractButton.addEventListener('click', async () => {
       palette.append(item);
     }
     downloadButton.disabled = false;
+    updateGenerateAvailability();
     const count = result.clusters.length;
     setStatus(count < paletteSize
       ? `Palette ready: ${count} representative ${count === 1 ? 'colour' : 'colours'}; reconstructed comparison created. Very small blended edge clusters may be merged.`
