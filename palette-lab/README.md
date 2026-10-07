@@ -1,6 +1,6 @@
 # Colour Palette Lab
 
-Colour Palette Lab is a web tool for artists, designers, and anyone interested in working with colour. It extracts a representative palette from an image, uses that palette to guide AI image generation, and lets users compare the colours found in the original and generated images.
+Colour Palette Lab is a web tool for artists, designers, and anyone interested in working with color. It extracts a palette from an image, uses that palette to guide AI image generation, and lets users compare the colours found in the original and generated images.
 
 Created for CMU 15-113: Effective Coding with AI, Project 2.
 
@@ -14,11 +14,8 @@ The frontend is hosted on GitHub Pages. The Python backend is hosted on Render a
 
 ## What it does
 
-Users can select a photograph or other image and extract a small set of representative colours. The tool displays each colour’s HEX value and approximate share of the sampled image, then reconstructs the image using the cleaned palette.
+Users can select a photograph or other image and extract a small set of representative colors. The tool displays each color’s HEX value and approximate share of the sampled image, then reconstructs the image using the cleaned palette. Users can also describe a new image and generate it using the extracted palette as guidance.
 
-Users can also describe a new image and generate it using the extracted palette as guidance. The app analyzes the generated image with the same colour-analysis process and displays its palette separately, making it possible to explore how closely the result follows the original colours.
-
-The comparison is approximate. It does not provide an accuracy score or guarantee that the generated image uses the exact requested HEX values.
 
 ## How to use it
 
@@ -38,7 +35,7 @@ The final palette can contain fewer colours than requested when the image has fe
 
 - JPG and PNG selection with file-type and size validation
 - Bundled sample illustration
-- Selectable palette size from 3 to 8 colours
+- Selectable palette size from 3 to 8 colors
 - Deterministic k-means clustering
 - HEX labels and sampled-pixel percentages
 - Tiny-cluster merging
@@ -49,7 +46,7 @@ The final palette can contain fewer colours than requested when the image has fe
 - Reset and same-file re-selection
 - Loading, success, and error messages
 - Responsive desktop and mobile layouts
-- Local colour analysis with server-side API credentials
+- Local color analysis with server-side API credentials
 
 ## How the project is organized
 
@@ -121,7 +118,7 @@ See the [backend README](../palette-lab-backend/README.md) for backend setup and
 const percentage = (cluster.count / result.sampleCount) * 100;
 ```
 
-Percentages describe sampled colour groups, not exact areas of the original full-resolution image. Rounded percentages may total slightly above or below 100%.
+Percentages describe sampled color groups. Rounded percentages may total slightly above or below 100%.
 
 The working Canvas contains at most 57,600 pixels, and clustering uses at most 6,000 samples. These limits keep the analysis manageable.
 
@@ -144,7 +141,7 @@ The reference image itself is not included.
 
 The backend validates the request and calls OpenAI using a server-side API key. The configured generation settings are `gpt-image-1-mini`, low quality, one 1024 × 1024 PNG, a 120-second API timeout, and no automatic retries.
 
-The generated image is returned to the frontend. The browser then applies the existing bounded colour-analysis process to that image and displays its extracted palette separately.
+The generated image is returned to the frontend. The browser then applies the existing bounded color-analysis process to that image and displays its extracted palette separately.
 
 Only one generation request can be pending in the interface at a time. Resetting, replacing the source image, or extracting a new palette prevents an outdated response from replacing the current results.
 
