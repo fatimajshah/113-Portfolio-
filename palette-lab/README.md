@@ -1,253 +1,333 @@
 # Colour Palette Lab
 
-Colour Palette Lab is a browser-based tool for exploring the colour structure of an image. It uses k-means clustering to extract a small representative palette, calculate the approximate share of each colour, and reconstruct the image using only those colours.
+Colour Palette Lab is a web tool for artists, designers, and anyone interested in working with colour. It extracts a representative palette from an image, uses that palette to guide AI image generation, and lets users compare the colours found in the original and generated images.
 
-The project was created for CMU 15-113: Effective Coding with AI, Project 2.
+Created for CMU 15-113: Effective Coding with AI, Project 2.
+
+## Live project
+
+- [Open Colour Palette Lab](https://fatimajshah.github.io/113-Portfolio-/palette-lab/)
+- [GitHub repository](https://github.com/fatimajshah/113-Portfolio-)
+- [Backend health check](https://one13-portfolio.onrender.com/health)
+
+The frontend is hosted on GitHub Pages. The Python backend is hosted on Render and handles requests to OpenAI.
 
 ## What it does
 
-The tool is intended for artists, designers, and anyone interested in understanding the visual colour structure of an image.
-A user can upload a JPG or PNG, choose how many representative colours to extract, and compare the original image with a simplified reconstruction made from the extracted palette.
+Users can select a photograph or other image and extract a small set of representative colours. The tool displays each colour’s HEX value and approximate share of the sampled image, then reconstructs the image using the cleaned palette.
 
-The app processes images locally in the browser. Uploaded images are not sent to a server.
+Users can also describe a new image and generate it using the extracted palette as guidance. The app analyzes the generated image with the same colour-analysis process and displays its palette separately, making it possible to explore how closely the result follows the original colours.
+
+The comparison is approximate. It does not provide an accuracy score or guarantee that the generated image uses the exact requested HEX values.
 
 ## How to use it
 
-1. Choose a JPG or PNG image, or click Try sample.
+1. Choose a JPG or PNG of 10 MB or less, or click **Try sample**.
 2. Select a palette size between 3 and 8 colours.
-3. Click Extract palette.
-4. Review the extracted swatches, HEX values, and percentages.
-5. Compare the original image with the reconstructed image.
-6. Click Copy HEX to copy an individual colour value.
-7. Click Download palette to save the palette as a PNG.
-8. Click Reset to clear the current image and begin again.
+3. Click **Extract palette**.
+4. Review the swatches, HEX values, and sampled-pixel percentages.
+5. Compare the original working image with its palette reconstruction.
+6. Use **Copy HEX** to copy a colour or **Download palette** to save the palette as a PNG.
+7. Enter a description of a new image and click **Generate with this palette**.
+8. Review the generated image and its separate extracted palette.
+9. Click **Reset** to clear the current results and start again.
 
-The percentages describe the distribution of the sampled working image. They represent colour clusters calculated by the algorithm and may not always match the semantic colours a person would name when looking at the image.
+The final palette can contain fewer colours than requested when the image has fewer distinct colours or when very small clusters are merged.
 
 ## Features
 
-- JPG and PNG image selection
-- Bundled sample image
-- Palette-size selection from 3 to 8 colours
-- Deterministic k-means colour clustering
-- HEX colour values
-- Sampled-pixel percentages
+- JPG and PNG selection with file-type and size validation
+- Bundled sample illustration
+- Selectable palette size from 3 to 8 colours
+- Deterministic k-means clustering
+- HEX labels and sampled-pixel percentages
+- Tiny-cluster merging
 - Original-versus-reconstructed image comparison
-- Tiny-cluster cleanup for insignificant edge colours
-- Copyable HEX values
-- Downloadable palette PNG
+- Copy HEX and palette PNG download
+- Palette-guided AI image generation
+- Local analysis of the generated image’s palette
 - Reset and same-file re-selection
-- Transparent-image handling
-- Invalid-file and oversized-file errors
-- Loading, success, and error states
-- Responsive mobile layout
-- Local browser-only processing
+- Loading, success, and error messages
+- Responsive desktop and mobile layouts
+- Local colour analysis with server-side API credentials
 
-## Public version
+## How the project is organized
 
-The deployed version is available here:
-
-[Open Colour Palette Lab](https://fatimajshah.github.io/113-Portfolio-/palette-lab/)
-
-This is the existing GitHub Pages frontend URL. Public availability of the latest changes has not been verified in this finalization pass. `config.js` still targets `http://127.0.0.1:5001`, so generation is configured for local development, not a deployed backend. GitHub Pages cannot run the Flask backend.
-
-## Project structure
+The repository contains two project folders:
 
 ```text
 palette-lab/
-├── index.html
-├── style.css
-├── app.js
-├── clustering.js
-├── checks.mjs
-├── README.md
-├── prompt_log.md
-├── assets/
-│   └── still-life.svg
-└── test-fixtures/
+    index.html
+    style.css
+    app.js
+    config.js
+    clustering.js
+    checks.mjs
+    generation_checks.mjs
+    README.md
+    prompt_log.md
+    assets/
+        still-life.svg
+
+palette-lab-backend/
+    app.py
+    requirements.txt
+    start.sh
+    smoke_test.py
+    test_app.py
+    .env.example
+    .gitignore
+    README.md
+    prompt_log.md
 ```
 
-### `index.html`
+### Frontend
 
-Contains the page structure, labelled image input, sample button, palette-size selector, extraction button, image comparison, palette list, download button, reset button, and live status message.
+- **index.html:** Page structure, image selection, palette controls, comparisons, generation input, and status messages.
+- **style.css:** Layout, typography, swatches, buttons, focus states, and responsive styling.
+- **app.js:** Image loading, Canvas processing, palette rendering, percentages, reconstruction, copying, downloading, reset, and generation requests.
+- **config.js:** Backend base URL. The deployed frontend uses `https://one13-portfolio.onrender.com`.
+- **clustering.js:** Sampling, RGB distance, centre initialization, k-means, tiny-cluster merging, reconstruction mapping, and HEX conversion.
+- **checks.mjs:** Focused checks for colour analysis and related behavior.
+- **generation_checks.mjs:** Offline checks for the generation workflow.
+- **assets/still-life.svg:** Bundled sample illustration.
+- **prompt_log.md:** Development prompts and process documentation.
 
-### `style.css`
+### Backend
 
-Controls the visual presentation, responsive layout, visible focus states, colour swatches, buttons, image comparison, and mobile stacking.
+- **app.py:** Flask API, input validation, generation requests, error handling, and request limits.
+- **requirements.txt:** Python dependencies.
+- **start.sh:** Gunicorn startup command for Render.
+- **smoke_test.py:** Configuration checks and an optional real generation test.
+- **test_app.py:** Offline backend tests.
+- **.env.example:** Environment-variable template containing no real credentials.
 
-### `app.js`
+See the [backend README](../palette-lab-backend/README.md) for backend setup and configuration.
 
-Manages the interface and image workflow. It validates files, decodes images, creates a smaller working Canvas, calls the clustering functions, calculates percentages, renders the palette, creates the reconstructed image, copies HEX values, downloads a palette PNG, and resets the application state.
+## How colour extraction works
 
-### `clustering.js`
-
-Contains the pure colour-analysis functions:
-
-- RGB distance calculation
-- Nearest-colour lookup
-- Pixel sampling
-- Transparency handling
-- Deterministic centre initialization
-- K-means clustering
-- Tiny-cluster merging
-- Pixel-to-palette mapping
-- RGB-to-HEX conversion
-
-### `checks.mjs`
-
-Contains small dependency-free checks for the clustering algorithm and important edge cases.
-
-### `assets/still-life.svg`
-
-A local geometric sample illustration created specifically for this project. It does not depend on an external image URL.
-
-### `test-fixtures/`
-
-Contains small generated PNG fixtures for testing solid colours, transparency, and corrupt-image handling.
-
-## How the algorithm works
-
-1. `selectImage()` decodes the selected image and updates the preview.
-2. The extraction process creates a smaller working image while preserving the original aspect ratio. The longest edge is limited to 240 pixels.
-3. `samplePixels()` ignores fully transparent pixels, composites partially transparent pixels against white, and selects at most 6,000 visible RGB samples.
-4. `initializeCentres()` chooses deterministic starting colours. It begins with the first unique sample and repeatedly selects the colour farthest from its nearest existing centre.
-5. `kMeans()` assigns each sample to its nearest centre, averages the RGB values in each cluster, and repeats until the centres stabilize or 30 iterations have passed.
-6. Final centres are rounded to whole RGB values. Identical HEX colours are merged, samples are recounted, and unused clusters are removed.
-7. Each final cluster contains:
+1. The browser decodes the selected image.
+2. Canvas creates a smaller working copy while preserving its aspect ratio. The longest edge is capped at 240 pixels.
+3. `samplePixels()` ignores fully transparent pixels, composites partially transparent pixels against white, and selects up to 6,000 visible RGB samples.
+4. `initializeCentres()` chooses starting colours deterministically. It begins with the first unique sample and repeatedly chooses the colour farthest from its nearest existing centre.
+5. `kMeans()` assigns each sample to its nearest centre using squared RGB distance.
+6. Each centre is updated to the average RGB value of its assigned samples.
+7. Assignment and averaging repeat until the centres stabilize or 30 iterations have passed.
+8. Final centres are rounded, duplicate colours are merged, samples are recounted, and unused clusters are removed.
+9. `mergeTinyClusters()` merges clusters representing less than 1.5% of the samples into the nearest larger cluster using a count-weighted colour average. Their counts are preserved.
+10. The interface displays the final colours and calculates percentages:
 
 ```js
-{
-  rgb: [red, green, blue],
-  hex: "#RRGGBB",
-  count: number
-}
+const percentage = (cluster.count / result.sampleCount) * 100;
 ```
 
-The result also includes `sampleCount` and the number of iterations used.
+Percentages describe sampled colour groups, not exact areas of the original full-resolution image. Rounded percentages may total slightly above or below 100%.
 
-8. The interface calculates each percentage using:
+The working Canvas contains at most 57,600 pixels, and clustering uses at most 6,000 samples. These limits keep the analysis manageable.
 
-```js
-cluster.count / result.sampleCount
-```
+## How reconstruction works
 
-9. Clusters below the 1.5% threshold are merged into the nearest larger cluster. Their pixels are still represented in the final counts rather than discarded.
-10. `mapPixelsToPalette()` assigns every working-image pixel to its nearest cleaned palette colour and creates the reconstructed image.
+`mapPixelsToPalette()` assigns each working-image pixel to its nearest final palette colour.
 
-The computation is bounded so that large images do not create an unnecessarily expensive clustering operation. The working Canvas contains at most approximately 57,600 pixels, and the clustering step uses at most 6,000 samples.
+The mapped pixels are drawn into a Canvas with the same dimensions as the working image. This preserves the aspect ratio and shows what the image looks like with its colours reduced to the extracted palette.
 
-## Transparency and privacy
+The comparison uses the smaller working image rather than a full-resolution reconstruction.
 
-Fully transparent pixels are excluded from colour analysis.
+## How image generation works
 
-Partially transparent pixels are composited against white before clustering so that they become visible RGB colours.
+After extraction, the frontend sends a request to the backend’s `POST /generate` endpoint containing:
 
-Uploaded reference images and palette analysis stay in the browser. Optional generation sends the description and HEX palette through the backend to OpenAI; it does not upload the reference image. The frontend does not use analytics or persist images between visits.
+- The user’s description
+- The final cleaned HEX palette
 
-Local extraction needs no backend or key. Optional generation requires the Flask backend and a server-side OpenAI API key. No API key belongs in frontend files, and no database is used.
+The reference image itself is not included.
 
-Temporary object URLs created for selected files are revoked after image decoding. User-provided filenames are rendered as text rather than inserted as raw HTML.
+The backend validates the request and calls OpenAI using a server-side API key. The configured generation settings are `gpt-image-1-mini`, low quality, one 1024 × 1024 PNG, a 120-second API timeout, and no automatic retries.
 
-## My code contributions
+The generated image is returned to the frontend. The browser then applies the existing bounded colour-analysis process to that image and displays its extracted palette separately.
 
-I added the percentage calculation in `app.js` using each cluster’s count divided by the total sampled-pixel count. I connected the result to the visible percentage label beside each HEX value.
+Only one generation request can be pending in the interface at a time. Resetting, replacing the source image, or extracting a new palette prevents an outdated response from replacing the current results.
 
-I also added defensive validation inside `initializeCentres()` so the function reports an error when it receives no visible colour samples. This covers the case where a fully transparent image produces no usable RGB samples.
+Abandoning a request in the browser does not guarantee that generation stops on the backend or at the provider. The request may still incur a charge.
 
-I reviewed and tested the small-cluster cleanup logic, including how the 1.5% threshold affects anti-aliased edge colours. Tiny clusters are merged into nearby larger clusters while their pixel counts remain represented in the final result.
+## Privacy and credentials
 
-I also reviewed the data flow from image selection through Canvas sampling, clustering, reconstruction, and interface rendering so that I can explain the main functions and design decisions.
+Reference-image decoding, sampling, clustering, and reconstruction happen locally in the browser.
 
-## How I used AI
+Optional generation sends the description and HEX palette through the backend to OpenAI. The reference image stays in the browser.
 
-I used ChatGPT for brainstorming, assignment planning, code explanations, debugging support, and review. I used Codex to help implement the project in stages, inspect the repository, write code, and run focused checks.
+The app does not implement accounts, a database, analytics, or persistent image storage between visits.
 
-I questioned the initial output when blended image edges appeared as an additional colour that did not match the visual categories I expected. This led to palette-size controls, clearer percentage wording, and a small-cluster cleanup rule instead of assuming that the first result was perceptually perfect.
+The OpenAI API key belongs only in the backend’s local environment or Render’s secret environment variables. It must not appear in frontend code, documentation, or GitHub.
 
-I also reviewed the generated code and made my own changes, including the percentage calculation and empty-sample validation. I tested the application with simple colour images, transparent images, invalid files, and real photographs.
+Local `.env` files, virtual environments, and generated test outputs are excluded from version control.
 
-The development record, including prompts and tool choices, is in [prompt_log.md](prompt_log.md).
+User-provided filenames are rendered as text. Temporary object URLs are released after use.
 
-## Sources and credits
+## Running locally
 
-The bundled still-life illustration is stored locally in `assets/still-life.svg` and was created specifically for this project.
+You can use the public website without installing anything. These instructions are for development.
 
-The frontend uses no external runtime libraries. The colour analysis is implemented in JavaScript using standard RGB distance calculations and k-means clustering. The optional Python backend uses Flask, the official OpenAI SDK, and python-dotenv.
+### Frontend
 
-## Limitations
-
-The app analyzes a smaller working image rather than every pixel of the original file. This keeps the interface responsive, but very small visual details may not affect the extracted palette.
-
-The algorithm uses RGB distance. RGB distance is simple and easy to explain, but it does not model human colour perception perfectly. Colours that are mathematically close in RGB may not look equally close to a person.
-
-Canvas resizing can produce blended edge colours. These may appear as small additional clusters. The 1.5% cleanup rule merges very small clusters into nearby larger colours, but a meaningful accent occupying a very small area could also be merged.
-
-The reconstructed image is an approximation, not a lossless copy. Percentages describe the sampled working image rather than the exact area of the original full-resolution image.
-
-The app currently analyzes one image at a time and does not save palettes between visits.
-
-## Palette-guided generation
-
-After extracting a palette, enter a description and use Generate with this palette. The frontend sends only the description and final cleaned HEX palette to the local backend at `http://127.0.0.1:5001`. The uploaded reference image remains local in the browser. Generated images preserve their natural aspect ratio; exact HEX matching is not guaranteed.
-
-The frontend allows one pending generation request. Resetting, selecting another image, or extracting a new palette invalidates the pending response and clears the generated image. The browser may abandon its wait while the backend or provider continues processing, so an abandoned request may still consume provider time or quota. No automatic retry is performed.
-
-After the generated image decodes, the frontend runs the same bounded Canvas sampling, k-means, tiny-cluster cleanup, HEX conversion, and percentage calculation used for the source image. It displays the generated-image palette separately. This comparison is approximate because generation is guided by the palette rather than constrained to exact HEX values; it does not produce a single accuracy score.
-
-Run the frontend from the repository root in terminal 1:
+From the repository root:
 
 ```sh
 python3 -m http.server 8013 --bind 127.0.0.1
 ```
 
-Open http://127.0.0.1:8013/palette-lab/ . In terminal 2, starting from the repository root:
+Open:
+
+```text
+http://127.0.0.1:8013/palette-lab/
+```
+
+JavaScript modules should be served through HTTP rather than opening `index.html` directly.
+
+### Backend
+
+For first-time setup, open another terminal at the repository root:
 
 ```sh
 cd palette-lab-backend
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp -n .env.example .env
+```
+
+Add your API key to the local `.env` file. Never commit that file.
+
+Configure `ALLOWED_ORIGINS` to include the frontend origin used for local testing:
+
+```text
+http://127.0.0.1:8013
+```
+
+Start the backend:
+
+```sh
 env -u OPENAI_API_KEY .venv/bin/python app.py
 ```
 
-The backend owns its API key and model settings. See `../palette-lab-backend/README.md` for backend setup and usage limits.
+This command removes an inherited `OPENAI_API_KEY` for that process so the backend can use the key in its local `.env`.
+
+For a fully local setup, change the backend base URL in `palette-lab/config.js` to:
+
+```text
+http://127.0.0.1:5001
+```
+
+Restore the Render URL before publishing frontend changes.
+
+Local extraction works without an API key. Real image generation requires API access and may incur charges.
+
+## Deployment
+
+The frontend is served by GitHub Pages. The backend is a separate Render web service built from the same repository.
+
+Render configuration:
+
+- Root directory: `palette-lab-backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `sh start.sh`
+- Health-check path: `/health`
+- Secret environment variable: `OPENAI_API_KEY`
+- Allowed frontend origin: `https://fatimajshah.github.io`
+
+Render supplies `PORT`. Gunicorn uses one worker, four threads, and a 180-second timeout.
+
+The backend has process-local limits of five requests per minute and one concurrent generation. These limits reset when the process restarts and are not shared across multiple instances.
+
+CORS controls browser access; it is not authentication. Access protection for the paid generation endpoint remains an outstanding deployment limitation.
 
 ## Verification
 
-### AI-generated finalization notes
+Reported offline checks passed for:
 
-The existing Node algorithm checks and frontend static generation checks passed. Added behavioral offline checks executing the actual generation handlers with mocked DOM/fetch for repeated-click suppression, request payload, reset cancellation, stale errors, and stale successes; these passed. All 11 backend offline tests passed. These do not constitute full browser or deployed end-to-end verification. The user previously reported successful local real generation. No paid calls were made during finalization.
-
-Historical browser checks below are from earlier stages; repeat them after deployment. Source and generated palettes report sampled-pixel percentages, not an accuracy score. There is no proportional distribution chart currently.
-
-The focused Node checks cover:
-
-- One solid colour
-- Two known colours and their counts
-- Requesting more centres than distinct colours
-- Repeatability
-- Partial transparency
-- Fully transparent images
-- Bounded sample counts
-- Valid HEX formatting
-- Total cluster counts
+- Solid-colour and two-colour images
+- Requested palette sizes greater than the number of distinct colours
+- Deterministic results
+- Transparency handling
+- Sample limits and valid HEX values
+- Cluster count totals
 - Tiny-cluster merging
-- Percentage totals
+- Approximate percentage totals
 - Reconstruction dimensions
+- Generation request payloads
+- Repeated-click suppression
+- Reset and stale-response handling
+- Backend validation and mocked generation
 
-The browser was also used to verify:
+The backend test suite reported 11 passing offline tests. Offline checks do not make paid generation requests.
 
-- Loading the bundled sample
-- Replacing the sample with a user image
-- Displaying the original and reconstructed images
-- Selecting different palette sizes
-- Copying HEX values
-- Enabling and using palette download
-- Resetting the interface
-- Selecting the same file again after reset
-- Stacked comparison layout on a narrow viewport
-- Generated-image decoding and separate palette analysis contract
+Run the frontend checks from the repository root:
+
+```sh
+node palette-lab/checks.mjs
+node palette-lab/generation_checks.mjs
+```
+
+Earlier browser checks covered sample loading, image replacement, palette-size selection, reconstruction, copying, downloading, reset, same-file selection, and a narrow-screen layout.
+
+Local real image generation was also successfully tested during development. These checks do not establish that every feature works in every browser or that the full deployed workflow has been verified.
+
+## My code contributions
+
+I added the percentage calculation in `app.js` using each cluster’s count divided by the total sampled-pixel count. I connected the result to the percentage label beside each HEX value.
+
+I also added defensive validation inside `initializeCentres()` so the function reports an error when it receives no visible colour samples. This handles the case where a fully transparent image produces no usable RGB samples.
+
+I reviewed and tested the small-cluster cleanup logic, including how the 1.5% threshold affects blended edge colours. Tiny clusters are merged into nearby larger colours while their counts remain represented in the final result.
+
+I reviewed the data flow from image selection through Canvas sampling, clustering, reconstruction, and interface rendering so that I could understand the main functions and explain the design decisions.
+
+## How I used AI
+
+I used ChatGPT for brainstorming, planning, code explanations, debugging support, and review. I used Codex to help implement the project in stages, inspect files, write code, and run focused checks.
+
+The project began as a local palette-extraction tool. After feedback on its scope, I extended it with backend-powered image generation and analysis of the generated image’s colours.
+
+I questioned results when blended image edges appeared as additional colours that did not match the visual categories I expected. This led to palette-size controls, clearer percentage wording, and small-cluster cleanup.
+
+I made my own changes to the percentage display and empty-sample validation. AI-assisted implementation and my own changes are documented separately in the development records:
+
+- [Frontend prompt log](prompt_log.md)
+- [Backend prompt log](../palette-lab-backend/prompt_log.md)
 
 ## Where AI got it wrong
-In the early stages of development, the tool was detecting colors that weren't obviously present in the photograph, but were present in small amounts. As a result, the palette would not match the photogrpahy visually. In that sense, AI was able to help me write code for a theoretically correct version of the project, but not one that made sense visually. I had to use my own judgement to add a 1.5% threshold that merges very small clusters into nearby larger clusters, making the results more visually consistent with the image.
+
+The first version produced palettes that were mathematically reasonable but did not always match how I read the image visually. Small amounts of blended colour along edges could appear as separate palette entries.
+
+I questioned that output and worked with AI to introduce the 1.5% merging rule. This was a design tradeoff rather than a complete correction: it can make the main palette easier to read, but it can also remove a meaningful small accent.
+
+Another issue was the backend’s original error handling. It caught different API errors and returned a generic failure message, which made troubleshooting difficult. The diagnostics were updated to distinguish configuration, authentication, access, rate-limit, connection, and timeout problems without exposing credentials.
+
+## Sources and credits
+
+The bundled illustration in `assets/still-life.svg` was created by Codex specifically for this project.
+
+The frontend uses standard browser APIs and no external runtime libraries. Colour analysis is implemented in JavaScript using RGB distance and k-means clustering.
+
+The backend uses Flask, the official OpenAI Python SDK, python-dotenv, and Gunicorn.
+
+- [OpenAI image-generation API documentation](https://developers.openai.com/api/reference/python/resources/images/methods/generate)
+- [Flask documentation](https://flask.palletsprojects.com/)
+- [Gunicorn documentation](https://docs.gunicorn.org/)
+
+## Limitations
+
+- Downsampling and sampling can miss small details.
+- RGB distance does not model human colour perception uniformly.
+- Canvas resizing can introduce blended edge colours.
+- The 1.5% merging rule can remove meaningful small accents.
+- Reconstruction is an approximation rather than a lossless copy.
+- Generated images are palette-guided and may introduce different colours or proportions.
+- Generation depends on backend availability, provider access, and available API credits.
+- Request limits reduce usage but do not authenticate visitors.
+- The app does not save palettes or generated images between visits.
+- Broader accessibility and cross-browser testing remain future work.
 
 ## Future improvements
 
-Possible future improvements include using a more perceptually accurate colour space and performing more extensive accessibility testing.
+Possible improvements include using a more perceptually accurate colour space, adding secure access controls for generation, and expanding accessibility testing.
