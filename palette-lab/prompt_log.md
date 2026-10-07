@@ -1476,3 +1476,11 @@ Checks passed: frontend algorithm/generation checks and 11 backend offline tests
 Commit created: 370044c. Working tree is clean.
 Push failed because GitHub authentication was unavailable. main remains five commits ahead. After authenticating, run git push origin main.
 Generation still targets localhost. Remaining deployment work: host the backend with access controls, configure its HTTPS URL, and verify the public frontend.
+
+## Where AI got it wrong
+
+The first version produced palettes that were mathematically reasonable but did not always match how I read the image visually. Small amounts of blended colour along edges could appear as separate palette entries.
+
+I questioned that output and worked with AI to introduce the 1.5% merging rule. This was a design tradeoff rather than a complete correction: it can make the main palette easier to read, but it can also remove a meaningful small accent.
+
+Another issue was the backend’s original error handling. It caught different API errors and returned a generic failure message, which made troubleshooting difficult. The diagnostics were updated to distinguish configuration, authentication, access, rate-limit, connection, and timeout problems without exposing credentials.
